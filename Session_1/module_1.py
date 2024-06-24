@@ -6,7 +6,7 @@ def task_1(array: List[int], target: int) -> List[int]:
     storage = {}
 
     # go through all the numbers in the array and fild its complementing number
-    for i in array: # 2 3 6 7 8 9      10
+    for i in array:  # 2 3 6 7 8 9      10
         comp_num = target - i
         # check if the comp_num is already in the dictionary
         if comp_num in storage:
@@ -18,14 +18,12 @@ def task_1(array: List[int], target: int) -> List[int]:
     return []
 
 
-
-
 def task_2(number: int) -> int:
-    if number <0:
-        number=number*-1
-        sign=-1
+    if number < 0:
+        number = number * -1
+        sign = -1
     else:
-        sign=1
+        sign = 1
 
     mirror = 0
     while number > 0:
@@ -33,7 +31,8 @@ def task_2(number: int) -> int:
         number = number // 10
         mirror = mirror * 10 + a
 
-    return mirror*sign
+    return mirror * sign
+
 
 def task_3(array: List[int]) -> int:
     for i in range(len(array)):
@@ -44,7 +43,6 @@ def task_3(array: List[int]) -> int:
 
 
 def task_4(string: str) -> int:
-
     roman_to_int = {
         'I': 1,
         'V': 5,
@@ -78,6 +76,3 @@ def task_5(array: List[int]) -> int:
         if a > i:
             a = i
     return a
-
-
-

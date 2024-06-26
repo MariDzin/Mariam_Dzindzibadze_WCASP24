@@ -9,9 +9,6 @@ def task_1(exp: int):
     return lambda x: x ** exp
 
 
-
-
-
 def task_2(*args, **kwargs):
     for i in args:
         print(i)
@@ -39,17 +36,20 @@ def timer(func):
         start = time.time()
         result = func(*args, **kwargs)
         end = time.time()
-        run_time=end-start
+        run_time = end - start
         print(f"Finished {func.__name__} in {run_time:.4f} secs")
         return result
 
     return wrapper
 
+
 @timer
 def task_4():
     return len([1 for _ in range(0, 10 ** 8)])
 
+
 task_4()
+
 
 def task_5(matrix: Matrix) -> Matrix:
     transposed = []

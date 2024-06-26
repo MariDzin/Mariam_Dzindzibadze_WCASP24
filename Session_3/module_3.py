@@ -1,4 +1,5 @@
 # import time
+import time
 from typing import List
 
 Matrix = List[List[int]]
@@ -8,8 +9,7 @@ def task_1(exp: int):
     return lambda x: x ** exp
 
 
-hji = task_1(2)
-print(hji(5))
+
 
 
 def task_2(*args, **kwargs):
@@ -36,17 +36,20 @@ def task_3(name: str):
 
 def timer(func):
     def wrapper(*args, **kwargs):
-        print(f"Starting {func.a}.")
+        start = time.time()
         result = func(*args, **kwargs)
-        print(f"Finished {func.a}!")
+        end = time.time()
+        run_time=end-start
+        print(f"Finished {func.__name__} in {run_time:.4f} secs")
         return result
 
     return wrapper
 
-
+@timer
 def task_4():
     return len([1 for _ in range(0, 10 ** 8)])
 
+task_4()
 
 def task_5(matrix: Matrix) -> Matrix:
     transposed = []

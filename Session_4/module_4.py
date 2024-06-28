@@ -15,7 +15,6 @@ class Trainee:
         self.visited_lectures += 1
         self._add_points(1)
 
-
     def do_homework(self):
         self.done_home_tasks += 2
         self._add_points(2)
@@ -28,14 +27,11 @@ class Trainee:
         self.missed_home_tasks -= 2
         self._subtract_points(2)
 
-
     def _add_points(self, points: int):
         self.mark += points
 
         if self.mark > 10:
             self.mark = 10
-
-
 
     def _subtract_points(self, points):
         self.mark -= points
@@ -43,13 +39,11 @@ class Trainee:
         if self.mark < 0:
             self.mark = 0
 
-
     def is_passed(self):
         if self.mark > 7:
             print('Good job!')
         else:
-            print(f"You need to {(PASSING_GRADE-self.mark)} points. Try to do your best!")
-
+            print(f"You need to {(PASSING_GRADE - self.mark)} points. Try to do your best!")
 
     def __str__(self):
         status = (

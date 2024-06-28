@@ -92,7 +92,7 @@ def task_4(data: List[Union[int, str, float]]):
             # converting into  float and adding to the sum
             sum1 += float(i)
         except ValueError as e:
-            # if its impossible to convert to float raise error
+            # if it is impossible to convert to float raise error
             raise TypeError(f"Cannot convert element to float: {i}") from e
     return sum1
 

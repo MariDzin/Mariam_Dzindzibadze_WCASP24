@@ -35,12 +35,9 @@ def task_2(number: int) -> int:
 
 
 def task_3(array: List[int]) -> int:
-    st = set()      # creating set  1 3 4 5 1
-    for x in array:
-        if x in st:
-            return x
-        st.add(x)
-    return -1
+    for i in range(len(array)):
+        if array[i] in array[:i]:
+            return array[i]
 
 
 def task_4(string: str) -> int:

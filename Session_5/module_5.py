@@ -80,38 +80,47 @@ def task_3(url: str):
         response.raise_for_status()
         return response
     except requests.exceptions.HTTPError as e:
-        raise RequestException(e)
+        print(f"HTTP error occurred: {e}")
+        raise RequestException(f"HTTP error occurred: {e}")
     except RequestException as e:
+        print(f"Request exception occurred: {e}")
         raise e
 
 
-def task_4(data: List[Union[int, str, float]]):
+def task_4(data: List[Union[int, str, float]]) -> float:
     sum1 = 0.0
     for i in data:
         try:
-            # converting into  float and adding to the sum
-            sum1 += float(i)
-        except ValueError as e:
-            # if it is impossible to convert to float raise error
-            raise TypeError(f"Cannot convert element to float: {i}") from e
+            # first trying to add the element to the sum directly
+            sum1 += i
+        except TypeError:
+            try:
+                # if a TypeError occurs, convert the element to float and add to the sum
+                sum1 += float(i)
+            except ValueError as e:
+                # if conversion to float fails,then reraise the ValueError
+                raise ValueError(f"Cannot convert element to float: {i}") from e
     return sum1
 
 
 def task_5():
     try:
-        # reading variables from input and split
+        # reading variables from input
         x, y = input("Enter two numbers separated by space: ").split()
 
-        # convert to float
+        # converting them to float
+
         x = float(x)
         y = float(y)
 
-        #  start dividing and if b is  0 print message and otherwise divide
-        if y == 0:
-            print("Can't divide by zero")
-        else:
-            result = x / y
-            print(result)
+        # dividing first
+
+        result = x / y
+        print(result)
+    except ZeroDivisionError:
+
+        #  division by zero error
+        print("Can't divide by zero")
     except ValueError:
-        # if input cant become float -> error
+        #  invalid input
         print("Entered value is wrong")

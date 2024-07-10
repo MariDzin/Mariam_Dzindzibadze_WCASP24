@@ -6,8 +6,14 @@ Matrix = List[List[int]]
 
 
 def task_1(exp: int):
-    return lambda x: x ** exp
+    def power_function(x):
+        return x ** exp
 
+    return power_function
+
+
+# The task_1 function defines an inner function power_function that takes a single
+# argument x and returns x raised to the power of exp.
 
 def task_2(*args, **kwargs):
     for i in args:
@@ -15,6 +21,9 @@ def task_2(*args, **kwargs):
 
     for i in kwargs.items():
         print(i[1])
+
+
+# go thought args and print and go thought all kwargs items and print them too
 
 
 def helper(func):
@@ -29,6 +38,10 @@ def helper(func):
 @helper
 def task_3(name: str):
     print(f"Hello! My name is {name}.")
+
+
+# helper as decorator works the way that  helper is called instead of task_3 but
+# everytime instead of func(name) in wrapper task three will be called there
 
 
 def timer(func):
@@ -50,6 +63,7 @@ def task_4():
 
 task_4()
 
+# here, decorator is used
 
 def task_5(matrix: Matrix) -> Matrix:
     transposed = []
@@ -59,6 +73,16 @@ def task_5(matrix: Matrix) -> Matrix:
             column.append(row[i])
         transposed.append(column)
     return transposed
+
+
+# here I iterate over the columns of the original matrix, constructs new
+# rows for the transposed matrix, and appends them to the result.
+#  converting rows to columns and columns to rows.
+
+
+
+
+
 
 
 def task_6(queue: str):

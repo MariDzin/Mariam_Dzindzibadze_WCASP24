@@ -15,10 +15,10 @@ CREATE TABLE if not exists transportation_sales.DIM_DATES (
 -- Function will populate the DIM_DATES table
 CREATE OR REPLACE FUNCTION populate_dim_dates(start_date DATE, end_date DATE) RETURNS VOID AS $$
 DECLARE
-  current_date DATE := start_date;
+  dt DATE := start_date;
   date_surr_id BIGINT := 1;
 BEGIN
-  WHILE current_date <= end_date LOOP
+  WHILE dt <= end_date LOOP
     INSERT INTO transportation_sales.DIM_DATES (
       DATE_SURR_ID,
       DATE_ID,
@@ -30,19 +30,18 @@ BEGIN
     )
     VALUES (
       date_surr_id,
-      current_date,
-      EXTRACT(DAY FROM current_date)::INTEGER,
-      EXTRACT(MONTH FROM current_date)::INTEGER,
-      EXTRACT(YEAR FROM current_date)::INTEGER,
-      EXTRACT(QUARTER FROM current_date)::INTEGER,
-      EXTRACT(WEEK FROM current_date)::INTEGER
+      dt,
+      EXTRACT(DAY FROM dt)::INTEGER,
+      EXTRACT(MONTH FROM dt)::INTEGER,
+      EXTRACT(YEAR FROM dt)::INTEGER,
+      EXTRACT(QUARTER FROM dt)::INTEGER,
+      EXTRACT(WEEK FROM dt)::INTEGER
     );
 
-    current_date := current_date + INTERVAL '1 day';
+    dt := dt + INTERVAL '1 day';
     date_surr_id := date_surr_id + 1;
   END LOOP;
 END;
 $$ LANGUAGE plpgsql;
 
--- i dont know why but current date has syntax error here 
-
+SELECT populate_dim_dates('2022-01-01', '2024-12-31');

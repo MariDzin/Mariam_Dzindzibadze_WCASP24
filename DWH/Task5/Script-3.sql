@@ -9,148 +9,146 @@ OPTIONS (program 'file_fdw');
 -- creating schema for no usa orders 
 CREATE SCHEMA IF NOT EXISTS sa_no_usa_orders;
 -- creating first foreign table
-CREATE FOREIGN TABLE if not exists sa_no_usa_orders.ext_no_usa_order (
-    order_id INTEGER,
-    quantity INTEGER,
-    price_for_each NUMERIC,
-    sales_amount NUMERIC,
-    date_of_order DATE,
-    deal_size VARCHAR(50),
-    quarter INTEGER,
-    day INTEGER,
-    month INTEGER,
-    year INTEGER,
-    productline_id INTEGER,
-    product_line VARCHAR(100),
-    ms_rp NUMERIC,
-    product_model VARCHAR(100),
-    customers_id INTEGER,
-    cust_name VARCHAR(100),
-    cust_firstname Varchar(100),
-    cust_lastname VARCHAR(100),
-    phone_number VARCHAR(20),
-    address_id_num INTEGER,
-    address_line VARCHAR(200),
-    city_name VARCHAR(100),
-    postcode VARCHAR(20),
-    country_name VARCHAR(100),
-    payment_method VARCHAR(10)
+CREATE SCHEMA IF NOT EXISTS sa_no_usa_orders;
+
+-- creating first foreign table
+CREATE FOREIGN TABLE IF NOT EXISTS sa_no_usa_orders.ext_no_usa_order (
+    order_id VARCHAR(150),
+    quantity VARCHAR(150),
+    price_for_each VARCHAR(150),
+    sales_amount VARCHAR(150),
+    date_of_order VARCHAR(150),
+    deal_size VARCHAR(150),
+    quarter VARCHAR(150),
+    day VARCHAR(150),
+    month VARCHAR(150),
+    year VARCHAR(150),
+    productline_id VARCHAR(150),
+    product_line VARCHAR(150),
+    ms_rp VARCHAR(150),
+    product_model VARCHAR(150),
+    customers_id VARCHAR(150),
+    cust_name VARCHAR(150),
+    cust_firstname VARCHAR(150),
+    cust_lastname VARCHAR(150),
+    phone_number VARCHAR(150),
+    address_id_num VARCHAR(150),
+    address_line VARCHAR(150),
+    city_name VARCHAR(150),
+    postcode VARCHAR(150),
+    country_name VARCHAR(150),
+    payment_method VARCHAR(150)
 ) SERVER file_server OPTIONS (
-    filename 'C:\Program Files\PostgreSQL\16\data\updated_csvfile_no_usa.csv',
+    filename 'C:\\Program Files\\PostgreSQL\\16\\data\\updated_csvfile_no_usa.csv',
     format 'csv',
     header 'true',
     delimiter ',',
     quote '"',
-    escape '\',
+    escape '\\',
     null 'NULL',
     encoding 'UTF8'
 );
 
 -- creating schema for usa orders dataset
-
 CREATE SCHEMA IF NOT EXISTS sa_us_orders;
 
 -- creating foreign table for the usa orders dataset
-CREATE FOREIGN table if not exists sa_us_orders.ext_us_order (
-    ordernumber INTEGER,
-    quantityordered INTEGER,
-    priceeach numeric,
-    sales NUMERIC,
-    orderdate DATE,
-    dealsize VARCHAR(50),
-    qtr_id INTEGER,
-    day_id INTEGER,
-    month_id INTEGER,
-    year_id INTEGER,
-    productline_id INTEGER,
-    productline VARCHAR(100),
-    msrp NUMERIC,
-    productcode VARCHAR(100),
-    customer_id INTEGER,
-    customername VARCHAR(100),
-    contactfirstname VARCHAR(100),
-    contactlastname VARCHAR(100),
-    phone VARCHAR(20),
-    address_id INTEGER,
-    addressline1 VARCHAR(200),
-    city VARCHAR(100),
-    state VARCHAR(100),
-    postalcode VARCHAR(20),
-    country VARCHAR(100),
-    payment_method VARCHAR(10)
+CREATE FOREIGN TABLE IF NOT EXISTS sa_us_orders.ext_us_order (
+    ordernumber VARCHAR(150),
+    quantityordered VARCHAR(150),
+    priceeach VARCHAR(150),
+    sales VARCHAR(150),
+    orderdate VARCHAR(150),
+    dealsize VARCHAR(150),
+    qtr_id VARCHAR(150),
+    day_id VARCHAR(150),
+    month_id VARCHAR(150),
+    year_id VARCHAR(150),
+    productline_id VARCHAR(150),
+    productline VARCHAR(150),
+    msrp VARCHAR(150),
+    productcode VARCHAR(150),
+    customer_id VARCHAR(150),
+    customername VARCHAR(150),
+    contactfirstname VARCHAR(150),
+    contactlastname VARCHAR(150),
+    phone VARCHAR(150),
+    address_id VARCHAR(150),
+    addressline1 VARCHAR(150),
+    city VARCHAR(150),
+    state VARCHAR(150),
+    postalcode VARCHAR(150),
+    country VARCHAR(150),
+    payment_method VARCHAR(150)
 ) SERVER file_server OPTIONS (
- filename 'C:\Program Files\PostgreSQL\16\data\updated_csvfile.csv',
+    filename 'C:\\Program Files\\PostgreSQL\\16\\data\\updated_csvfile.csv',
     format 'csv',
     header 'true',
     delimiter ',',
     quote '"',
-    escape '\',
+    escape '\\',
     null 'NULL',
-    encoding 'UTF8'   
+    encoding 'UTF8'
 );
-
 
 -- create source tables
 CREATE TABLE IF NOT EXISTS sa_no_usa_orders.src_no_usa_order (
-    order_id VARCHAR,
-    quantity VARCHAR,
-    price_for_each VARCHAR,
-    sales_amount VARCHAR,
-    date_of_order VARCHAR,
-    deal_size VARCHAR,
-    quarter VARCHAR,
-    day VARCHAR,
-    month VARCHAR,
-    year VARCHAR,
-    productline_id VARCHAR,
-    product_line VARCHAR,
-    ms_rp VARCHAR,
-    product_model VARCHAR,
-    customers_id VARCHAR,
-    cust_name VARCHAR,
-    cust_firstname VARCHAR,
-    cust_lastname VARCHAR,
-    phone_number VARCHAR,
-    address_id_num VARCHAR,
-    address_line VARCHAR,
-    city_name VARCHAR,
-    postcode VARCHAR,
-    country_name VARCHAR,
-    payment_method VARCHAR
+    order_id VARCHAR(150),
+    quantity VARCHAR(150),
+    price_for_each VARCHAR(150),
+    sales_amount VARCHAR(150),
+    date_of_order VARCHAR(150),
+    deal_size VARCHAR(150),
+    quarter VARCHAR(150),
+    day VARCHAR(150),
+    month VARCHAR(150),
+    year VARCHAR(150),
+    productline_id VARCHAR(150),
+    product_line VARCHAR(150),
+    ms_rp VARCHAR(150),
+    product_model VARCHAR(150),
+    customers_id VARCHAR(150),
+    cust_name VARCHAR(150),
+    cust_firstname VARCHAR(150),
+    cust_lastname VARCHAR(150),
+    phone_number VARCHAR(150),
+    address_id_num VARCHAR(150),
+    address_line VARCHAR(150),
+    city_name VARCHAR(150),
+    postcode VARCHAR(150),
+    country_name VARCHAR(150),
+    payment_method VARCHAR(150)
 );
 
 -- creating source table for usa orders
 CREATE TABLE IF NOT EXISTS sa_us_orders.src_us_order (
-    ordernumber VARCHAR,
-    quantityordered VARCHAR,
-    priceeach VARCHAR,
-    sales VARCHAR,
-    orderdate VARCHAR,
-    dealsize VARCHAR,
-    qtr_id VARCHAR,
-    day_id VARCHAR,
-    month_id VARCHAR,
-    year_id VARCHAR,
-    productline_id VARCHAR,
-    productline VARCHAR,
-    msrp VARCHAR,
-    productcode VARCHAR,
-    customer_id VARCHAR,
-    customername VARCHAR,
-    contactfirstname VARCHAR,
-    contactlastname VARCHAR,
-    phone VARCHAR,
-    address_id VARCHAR,
-    addressline1 VARCHAR,
-    city VARCHAR,
-    state VARCHAR,
-    postalcode VARCHAR,
-    country VARCHAR,
-    payment_method VARCHAR
+    ordernumber VARCHAR(150),
+    quantityordered VARCHAR(150),
+    priceeach VARCHAR(150),
+    sales VARCHAR(150),
+    orderdate VARCHAR(150),
+    dealsize VARCHAR(150),
+    qtr_id VARCHAR(150),
+    day_id VARCHAR(150),
+    month_id VARCHAR(150),
+    year_id VARCHAR(150),
+    productline_id VARCHAR(150),
+    productline VARCHAR(150),
+    msrp VARCHAR(150),
+    productcode VARCHAR(150),
+    customer_id VARCHAR(150),
+    customername VARCHAR(150),
+    contactfirstname VARCHAR(150),
+    contactlastname VARCHAR(150),
+    phone VARCHAR(150),
+    address_id VARCHAR(150),
+    addressline1 VARCHAR(150),
+    city VARCHAR(150),
+    state VARCHAR(150),
+    postalcode VARCHAR(150),
+    country VARCHAR(150),
+    payment_method VARCHAR(150)
 );
-
-
-
 
 -- now inserting 
 
@@ -182,40 +180,37 @@ INSERT INTO sa_no_usa_orders.src_no_usa_order (
     payment_method
 )
 SELECT DISTINCT
-    order_id::VARCHAR,
-    quantity::VARCHAR,
-    price_for_each::VARCHAR,
-    sales_amount::VARCHAR,
-    date_of_order::VARCHAR,
-    deal_size::VARCHAR,
-    quarter::VARCHAR,
-    day::VARCHAR,
-    month::VARCHAR,
-    year::VARCHAR,
-    productline_id::VARCHAR,
-    product_line::VARCHAR,
-    ms_rp::VARCHAR,
-    product_model::VARCHAR,
-    customers_id::VARCHAR,
-    cust_name::VARCHAR,
-    cust_firstname::VARCHAR,
-    cust_lastname::VARCHAR,
-    phone_number::VARCHAR,
-    address_id_num::VARCHAR,
-    address_line::VARCHAR,
-    city_name::VARCHAR,
-    postcode::VARCHAR,
-    country_name::VARCHAR,
-    payment_method::VARCHAR
+    order_id::VARCHAR(150),
+    quantity::VARCHAR(150),
+    price_for_each::VARCHAR(150),
+    sales_amount::VARCHAR(150),
+    date_of_order::VARCHAR(150),
+    deal_size::VARCHAR(150),
+    quarter::VARCHAR(150),
+    day::VARCHAR(150),
+    month::VARCHAR(150),
+    year::VARCHAR(150),
+    productline_id::VARCHAR(150),
+    product_line::VARCHAR(150),
+    ms_rp::VARCHAR(150),
+    product_model::VARCHAR(150),
+    customers_id::VARCHAR(150),
+    cust_name::VARCHAR(150),
+    cust_firstname::VARCHAR(150),
+    cust_lastname::VARCHAR(150),
+    phone_number::VARCHAR(150),
+    address_id_num::VARCHAR(150),
+    address_line::VARCHAR(150),
+    city_name::VARCHAR(150),
+    postcode::VARCHAR(150),
+    country_name::VARCHAR(150),
+    payment_method::VARCHAR(150)
 FROM sa_no_usa_orders.ext_no_usa_order;
-commit;
+COMMIT;
 
-select * from sa_no_usa_orders.ext_no_usa_order limit 10
+SELECT * FROM sa_no_usa_orders.ext_no_usa_order LIMIT 10;
 
-
-
--- insterting in usa orders 
-
+-- inserting in usa orders 
 INSERT INTO sa_us_orders.src_us_order (
     ordernumber,
     quantityordered,
@@ -245,33 +240,33 @@ INSERT INTO sa_us_orders.src_us_order (
     payment_method
 )
 SELECT DISTINCT
-    ordernumber::VARCHAR,
-    quantityordered::VARCHAR,
-    priceeach::VARCHAR,
-    sales::VARCHAR,
-    orderdate::VARCHAR,
-    dealsize::VARCHAR,
-    qtr_id::VARCHAR,
-    day_id::VARCHAR,
-    month_id::VARCHAR,
-    year_id::VARCHAR,
-    productline_id::VARCHAR,
-    productline::VARCHAR,
-    msrp::VARCHAR,
-    productcode::VARCHAR,
-    customer_id::VARCHAR,
-    customername::VARCHAR,
-    contactfirstname::VARCHAR,
-    contactlastname::VARCHAR,
-    phone::VARCHAR,
-    address_id::VARCHAR,
-    addressline1::VARCHAR,
-    city::VARCHAR,
-    state::VARCHAR,
-    postalcode::VARCHAR,
-    country::VARCHAR,
-    payment_method::VARCHAR
-FROM sa_us_orders.ext_us_orders;
-commit;
+    ordernumber::VARCHAR(150),
+    quantityordered::VARCHAR(150),
+    priceeach::VARCHAR(150),
+    sales::VARCHAR(150),
+    orderdate::VARCHAR(150),
+    dealsize::VARCHAR(150),
+    qtr_id::VARCHAR(150),
+    day_id::VARCHAR(150),
+    month_id::VARCHAR(150),
+    year_id::VARCHAR(150),
+    productline_id::VARCHAR(150),
+    productline::VARCHAR(150),
+    msrp::VARCHAR(150),
+    productcode::VARCHAR(150),
+    customer_id::VARCHAR(150),
+    customername::VARCHAR(150),
+    contactfirstname::VARCHAR(150),
+    contactlastname::VARCHAR(150),
+    phone::VARCHAR(150),
+    address_id::VARCHAR(150),
+    addressline1::VARCHAR(150),
+    city::VARCHAR(150),
+    state::VARCHAR(150),
+    postalcode::VARCHAR(150),
+    country::VARCHAR(150),
+    payment_method::VARCHAR(150)
+FROM sa_us_orders.ext_us_order;
+COMMIT;
 
-select * from sa_us_orders.ext_us_order limit 10
+SELECT * FROM sa_us_orders.ext_us_order LIMIT 10;

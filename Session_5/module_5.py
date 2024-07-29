@@ -10,7 +10,8 @@ from requests import RequestException
 
 # import requests
 # from requests.exceptions import ConnectionError
-# from gensim.utils import simple_preprocess
+# from gensim.utils import
+# simple_preprocess
 
 
 S5_PATH = Path(os.path.realpath(__file__)).parent

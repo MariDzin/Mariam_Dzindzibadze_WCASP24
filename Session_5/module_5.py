@@ -57,8 +57,9 @@ def task_2(top_k: int):
     # removing stop words from the text
     filtered_words = [word for word in words if word not in stop_words]
 
-    # counting how many times words appears, creating empty dictionary and for every time word appears
-    # dictionary will rise word count by one, what way we will know how many times each work appears in the file
+    # counting how many times words appears, create empty dictionary and every time word appears
+    # dictionary will rise word count by one, what way we will know how many times each work appears
+    # in the file
 
     word_counts = {}
     for word in filtered_words:

@@ -1,13 +1,15 @@
 """
 Module for preparing inverted indexes based on uploaded documents
 """
-
+import json
+import re
 import sys
 from argparse import ArgumentParser, ArgumentTypeError, FileType
 from io import TextIOWrapper
 from typing import Dict, List
 
 DEFAULT_PATH_TO_STORE_INVERTED_INDEX = "inverted.index"
+DEFAULT_PATH_TO_STORE_STOP_WORDS = "stop_words_en.txt"
 
 
 class EncodedFileType(FileType):
@@ -44,11 +46,20 @@ class InvertedIndex:
     """
 
     def __init__(self, words_ids: Dict[str, List[int]]):
-        pass
+        self.words_ids = words_ids
 
     def query(self, words: List[str]) -> List[int]:
         """Return the list of relevant documents for the given query"""
-        pass
+        result = set()
+        for word in words:
+            if word in self.words_ids:
+                if not result:
+                    result = set(self.words_ids[word])
+                else:
+                    result &= set(self.words_ids[word])
+            else:
+                return []
+        return list(result)
 
     def dump(self, filepath: str) -> None:
         """
@@ -56,7 +67,8 @@ class InvertedIndex:
         :param filepath: path to file with documents
         :return: None
         """
-        pass
+        with open(filepath, 'w', encoding='utf-8') as f:
+            json.dump(self.words_ids, f)
 
     @classmethod
     def load(cls, filepath: str):
@@ -65,7 +77,9 @@ class InvertedIndex:
         :param filepath: path to file with documents
         :return: InvertedIndex
         """
-        pass
+        with open(filepath, 'r', encoding='utf-8') as f:
+            words_ids = json.load(f)
+        return cls(words_ids)
 
 
 def load_documents(filepath: str) -> Dict[int, str]:
@@ -74,16 +88,57 @@ def load_documents(filepath: str) -> Dict[int, str]:
     :param filepath: path to file with documents
     :return: Dict[int, str]
     """
-    pass
+    documents = {}
+    try:
+        with open(filepath, 'r', encoding='utf-8') as file:
+            for index, line in enumerate(file):
+                documents[index] = line.strip()
+    except FileNotFoundError:
+        print(f"Error: The file at {filepath} was not found.")
+    except IOError:
+        print(f"Error: An IOError occurred while reading the file at {filepath}.")
+
+    return documents
 
 
-def build_inverted_index(documents: Dict[int, str]) -> InvertedIndex:
+def load_stop_words(filepath: str) -> List[str]:
+    """
+    Allow us to upload stop words
+    :param filepath: path to file with stop words
+    :return: List[str]
+    """
+    stop_words = []
+    try:
+        with open(filepath, 'r', encoding='utf-8') as file:
+            for line in file:
+                stop_words.append(line.strip())
+    except FileNotFoundError:
+        print(f"Error: The file at {filepath} was not found.")
+    except IOError:
+        print(f"Error: An IOError occurred while reading the file at {filepath}.")
+
+    return stop_words
+
+
+def build_inverted_index(documents: Dict[int, str], stop_words: List[str]) -> InvertedIndex:
     """
     Builder of inverted indexes based on documents
     :param documents: dict with documents
+    :param stop_words: List of stopping words
     :return: InvertedIndex class
     """
-    pass
+    words_ids = {}
+    for doc_id, content in documents.items():
+        words = re.split(r'\W+', content.lower())
+        for word in words:
+            if word:
+                if word in stop_words:
+                    continue
+                if word not in words_ids:
+                    words_ids[word] = []
+                if doc_id not in words_ids[word]:
+                    words_ids[word].append(doc_id)
+    return InvertedIndex(words_ids)
 
 
 def callback_build(arguments) -> None:
@@ -95,11 +150,11 @@ def process_build(dataset, output) -> None:
     """
     Function is responsible for running of a pipeline to load documents,
     build and save inverted index.
-    :param arguments: key/value pairs of arguments from 'build' subparser
     :return: None
     """
     documents: Dict[int, str] = load_documents(dataset)
-    inverted_index = build_inverted_index(documents)
+    stop_words: List[str] = load_stop_words(DEFAULT_PATH_TO_STORE_STOP_WORDS)
+    inverted_index = build_inverted_index(documents, stop_words)
     inverted_index.dump(output)
 
 
@@ -111,8 +166,7 @@ def callback_query(arguments) -> None:
 def process_query(queries, index) -> None:
     """
     Function is responsible for loading inverted indexes
-    and printing document indexes for key words from arguments.query
-    :param arguments: key/value pairs of arguments from 'query' subparser
+    and printing document indexes for keywords from arguments. Query
     :return: None
     """
     inverted_index = InvertedIndex.load(index)
@@ -134,7 +188,7 @@ def setup_subparsers(parser) -> None:
     build_parser = subparser.add_parser(
         "build",
         help="this parser is need to load, build"
-        " and save inverted index bases on documents",
+             " and save inverted index bases on documents",
     )
     build_parser.add_argument(
         "-d",
@@ -147,7 +201,7 @@ def setup_subparsers(parser) -> None:
         "--output",
         default=DEFAULT_PATH_TO_STORE_INVERTED_INDEX,
         help="You should specify path to save inverted index. "
-        "The default: %(default)s",
+             "The default: %(default)s",
     )
     build_parser.set_defaults(callback=callback_build)
 
@@ -184,7 +238,7 @@ def main():
     """
     parser = ArgumentParser(
         description="Inverted Index CLI is need to load, build,"
-        "process query inverted index"
+                    "process query inverted index"
     )
     setup_subparsers(parser)
     arguments = parser.parse_args()

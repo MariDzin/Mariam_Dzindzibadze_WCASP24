@@ -1,0 +1,383 @@
+CREATE SEQUENCE IF NOT EXISTS BL_DM.dm_dealsize_id_seq;
+CREATE SEQUENCE IF NOT EXISTS BL_DM.dm_payment_method_id_seq;
+CREATE SEQUENCE IF NOT EXISTS BL_DM.dm_product_id_seq;
+CREATE SEQUENCE IF NOT EXISTS BL_DM.dm_country_id_seq;
+CREATE SEQUENCE IF NOT EXISTS BL_DM.dm_state_id_seq;
+CREATE SEQUENCE IF NOT EXISTS BL_DM.dm_city_id_seq;
+CREATE SEQUENCE IF NOT EXISTS BL_DM.dm_address_id_seq;
+CREATE SEQUENCE IF NOT EXISTS BL_DM.dm_customer_id_seq;
+CREATE SEQUENCE IF NOT EXISTS BL_DM.dm_order_id_seq;
+
+
+-- here i check index if they exist and making sure they do exsit
+
+
+-- Creating procedures to load data into DIM and FCT tables
+
+CREATE OR REPLACE PROCEDURE BL_DM.load_dm_dealsizes()
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    rec RECORD;
+    rows_affected INT := 0;
+BEGIN
+    FOR rec IN
+        SELECT DISTINCT
+            dealsize_id AS dealsize_surr_id,
+            dealsize,
+            dealsize_src_id,
+            ta_insert_dt,
+            ta_update_dt,
+            source_system,
+            source_entity
+        FROM BL_3NF.CE_DEALSIZES
+    LOOP
+        BEGIN
+            INSERT INTO BL_DM.DIM_DEALSIZES (DEALSIZE_SURR_ID, DEALSIZE, DEALSIZE_SRC_ID, TA_INSERT_DT, TA_UPDATE_DT, SOURCE_SYSTEM, SOURCE_ENTITY)
+            VALUES (rec.dealsize_surr_id, rec.dealsize, rec.dealsize_src_id, rec.ta_insert_dt, rec.ta_update_dt, rec.source_system, rec.source_entity);
+            rows_affected := rows_affected + 1;
+        EXCEPTION
+            WHEN unique_violation THEN
+                -- Log unique violation
+                PERFORM BL_3NF.log_procedure_action('load_dm_dealsizes', rows_affected, 'Unique violation for dealsize_surr_id: ' || rec.dealsize_surr_id);
+        END;
+    END LOOP;
+
+    -- Log the action
+    PERFORM BL_3NF.log_procedure_action('load_dm_dealsizes', rows_affected, 'Dealsizes loaded successfully into DM');
+END;
+$$;
+
+-- Procedure to load data into DIM_PAYMENT_METHODS
+CREATE OR REPLACE PROCEDURE BL_DM.load_dm_payment_methods()
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    rec RECORD;
+    rows_affected INT := 0;
+BEGIN
+    FOR rec IN
+        SELECT DISTINCT
+            payment_method_id AS payment_method_surr_id,
+            payment_method,
+            payment_src_id, 
+            ta_insert_dt,
+            ta_update_dt,
+            source_system,
+            source_entity
+        FROM BL_3NF.CE_PAYMENT_METHODS
+    LOOP
+        BEGIN
+            INSERT INTO BL_DM.DIM_PAYMENT_METHODS (PAYMENT_METHOD_SURR_ID, PAYMENT_METHOD, PAYMENT_METHOD_SRC_ID, TA_INSERT_DT, TA_UPDATE_DT, SOURCE_SYSTEM, SOURCE_ENTITY)
+            VALUES (rec.payment_method_surr_id, rec.payment_method, rec.payment_src_id, rec.ta_insert_dt, rec.ta_update_dt, rec.source_system, rec.source_entity);
+            rows_affected := rows_affected + 1;
+        EXCEPTION
+            WHEN unique_violation THEN
+                -- Log unique violation
+                PERFORM BL_3NF.log_procedure_action('load_dm_payment_methods', rows_affected, 'Unique violation for payment_method_surr_id: ' || rec.payment_method_surr_id);
+        END;
+    END LOOP;
+
+    -- Log the action
+    PERFORM BL_3NF.log_procedure_action('load_dm_payment_methods', rows_affected, 'Payment methods loaded successfully into DM');
+END;
+$$;
+
+
+   
+
+-- Procedure to load data into DIM_DATES
+CREATE OR REPLACE PROCEDURE BL_DM.load_dm_dates()
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    rec RECORD;
+    rows_affected INT := 0;
+BEGIN
+    FOR rec IN
+        SELECT DISTINCT
+            TO_CHAR(us.orderdate::DATE, 'DDMMYYYY')::BIGINT AS date_id,  -- Using DDMMYYYY format as date_id
+            EXTRACT(DAY FROM us.orderdate::DATE) AS day_id,
+            EXTRACT(MONTH FROM us.orderdate::DATE) AS month_id,
+            EXTRACT(YEAR FROM us.orderdate::DATE) AS year_id,
+            EXTRACT(QUARTER FROM us.orderdate::DATE) AS qrt_id,
+            EXTRACT(WEEK FROM us.orderdate::DATE) AS week_id
+        FROM sa_us_orders.src_us_order us
+        UNION
+        SELECT DISTINCT
+            TO_CHAR(nous.date_of_order::DATE, 'DDMMYYYY')::BIGINT AS date_id, 
+            EXTRACT(DAY FROM nous.date_of_order::DATE) AS day_id,
+            EXTRACT(MONTH FROM nous.date_of_order::DATE) AS month_id,
+            EXTRACT(YEAR FROM nous.date_of_order::DATE) AS year_id,
+            EXTRACT(QUARTER FROM nous.date_of_order::DATE) AS qrt_id,
+            EXTRACT(WEEK FROM nous.date_of_order::DATE) AS week_id
+        FROM sa_no_usa_orders.src_no_usa_order nous
+    LOOP
+        BEGIN
+            -- Check if the record already exists
+            IF NOT EXISTS (SELECT 1 FROM BL_DM.dim_dates WHERE date_id = rec.date_id) THEN
+                -- Insert the new record
+                INSERT INTO BL_DM.dim_dates (date_id, day_id, month_id, year_id, qrt_id, week_id)
+                VALUES (rec.date_id, rec.day_id, rec.month_id, rec.year_id, rec.qrt_id, rec.week_id);
+                rows_affected := rows_affected + 1;
+            END IF;
+        EXCEPTION
+            WHEN OTHERS THEN
+                PERFORM BL_3NF.log_procedure_action('load_dm_dates', rows_affected, 'Error loading date_id: ' || rec.date_id || ' - ' || SQLERRM);
+        END;
+    END LOOP;
+
+    -- Log the action
+    PERFORM BL_3NF.log_procedure_action('load_dm_dates', rows_affected, 'Dates loaded successfully into DM');
+END;
+$$;
+
+
+
+-- Procedure to load data into DIM_PRODUCTS
+CREATE OR REPLACE PROCEDURE BL_DM.load_dm_products()
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    rec RECORD;
+    rows_affected INT := 0;
+BEGIN
+    FOR rec IN
+        SELECT DISTINCT
+            p.product_id AS product_surr_id,
+            p.product_src_id,
+            p.productcode,
+            p.productline,
+            p.priceeach,
+            p.msrp,
+            p.ta_insert_dt,
+            CURRENT_TIMESTAMP AS ta_update_dt,
+            p.source_system,
+            p.source_entity
+        FROM BL_3NF.CE_PRODUCTS p
+    LOOP
+        BEGIN
+            -- Check if the record already exists
+            IF EXISTS (SELECT 1 FROM BL_DM.DIM_PRODUCTS WHERE product_surr_id = rec.product_surr_id) THEN
+                -- Update the existing record
+                UPDATE BL_DM.DIM_PRODUCTS
+                SET product_src_id = rec.product_src_id,
+                    productcode = rec.productcode,
+                    productline = rec.productline,
+                    priceeach = rec.priceeach,
+                    msrp = rec.msrp,
+                    ta_update_dt = rec.ta_update_dt,
+                    source_system = rec.source_system,
+                    source_entity = rec.source_entity
+                WHERE product_surr_id = rec.product_surr_id;
+            ELSE
+                -- Inserting  the new record
+                INSERT INTO BL_DM.DIM_PRODUCTS (product_surr_id, product_src_id, productcode, productline, priceeach, msrp, ta_insert_dt, ta_update_dt, source_system, source_entity)
+                VALUES (rec.product_surr_id, rec.product_src_id, rec.productcode, rec.productline, rec.priceeach, rec.msrp, rec.ta_insert_dt, rec.ta_update_dt, rec.source_system, rec.source_entity);
+            END IF;
+            rows_affected := rows_affected + 1;
+        EXCEPTION
+            WHEN OTHERS THEN
+                -- Log the exception
+                PERFORM BL_3NF.log_procedure_action('load_dm_products', rows_affected, 'Error loading product_surr_id: ' || rec.product_surr_id || ' - ' || SQLERRM);
+        END;
+    END LOOP;
+
+    -- Log the action
+    PERFORM BL_3NF.log_procedure_action('load_dm_products', rows_affected, 'Products loaded successfully into DM');
+END;
+$$;
+
+
+
+-- customers 
+
+CREATE OR REPLACE PROCEDURE BL_DM.load_dm_customers()
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    rec RECORD;
+    rows_affected INT := 0;
+BEGIN
+    FOR rec IN
+        SELECT DISTINCT
+            c.customer_id AS customer_surr_id,
+            c.customer_src_id,
+            c.customername,
+            c.contactfirstname,
+            c.contactlastname,
+            c.phone,
+            a.addressline1,
+            COALESCE(ct.city_id, -1) AS city_id,
+            COALESCE(ct.city_name, 'n. a.') AS city,
+            COALESCE(st.state_id, -1) AS state_id,
+            COALESCE(st.state_name, 'n. a.') AS state,
+            COALESCE(co.country_id, -1) AS country_id,
+            COALESCE(co.country_name, 'n. a.') AS country,
+            c.start_dt,
+            c.end_dt,
+            c.is_active,
+            c.ta_insert_dt,
+            CURRENT_TIMESTAMP AS ta_update_dt,
+            c.source_system,
+            c.source_entity
+        FROM BL_3NF.CE_CUSTOMERS_SCD c
+        LEFT JOIN BL_3NF.CE_ADDRESSES a
+            ON c.address_id = a.address_id
+            AND c.source_system = a.source_system
+            AND c.source_entity = a.source_entity
+        LEFT JOIN BL_3NF.CE_CITIES ct
+            ON a.city_id = ct.city_id
+            AND a.source_system = ct.source_system
+            AND a.source_entity = ct.source_entity
+        LEFT JOIN BL_3NF.CE_STATES st
+            ON ct.state_id = st.state_id
+            AND ct.source_system = st.source_system
+            AND ct.source_entity = st.source_entity
+        LEFT JOIN BL_3NF.CE_COUNTRIES co
+            ON st.country_id = co.country_id
+            AND st.source_system = co.source_system
+            AND st.source_entity = co.source_entity
+    LOOP
+        BEGIN
+            -- Check if the record already exists and is active
+            IF EXISTS (
+                SELECT 1 FROM BL_DM.DIM_CUSTOMERS
+                WHERE customer_src_id = rec.customer_src_id
+                AND source_system = rec.source_system
+                AND source_entity = rec.source_entity
+                AND is_active = 'Y'
+            ) THEN
+                -- Update the existing record to set is_active = 'N'
+                UPDATE BL_DM.DIM_CUSTOMERS
+                SET is_active = 'N', end_dt = CURRENT_DATE
+                WHERE customer_src_id = rec.customer_src_id
+                AND source_system = rec.source_system
+                AND source_entity = rec.source_entity
+                AND is_active = 'Y';
+            END IF;
+
+            -- Insert the new record as active
+            INSERT INTO BL_DM.DIM_CUSTOMERS (
+                CUSTOMER_SURR_ID, CUSTOMER_SRC_ID, CUSTOMERNAME, CONTACTFIRSTNAME, CONTACTLASTNAME, PHONE, ADDRESSLINE1, 
+                CITY_ID, CITY, STATE_ID, STATE, COUNTRY_ID, COUNTRY, START_DT, END_DT, IS_ACTIVE, TA_INSERT_DT, TA_UPDATE_DT, SOURCE_SYSTEM, SOURCE_ENTITY
+            )
+            VALUES (
+                nextval('BL_DM.customer_surr_id_seq'), rec.customer_src_id, rec.customername, rec.contactfirstname, rec.contactlastname, 
+                rec.phone, rec.addressline1, rec.city_id, rec.city, rec.state_id, rec.state, rec.country_id, rec.country, 
+                CURRENT_DATE, '9999-12-31', 'Y', CURRENT_DATE, CURRENT_TIMESTAMP, rec.source_system, rec.source_entity
+            );
+            rows_affected := rows_affected + 1;
+        EXCEPTION
+            WHEN OTHERS THEN
+                -- Log any other exceptions
+                PERFORM BL_3NF.log_procedure_action('load_dm_customers', rows_affected, 'Error: ' || SQLERRM);
+        END;
+    END LOOP;
+
+    -- Log the action
+    PERFORM BL_3NF.log_procedure_action('load_dm_customers', rows_affected, 'Customers loaded successfully into DM');
+END;
+$$;
+
+
+-- order
+
+CREATE OR REPLACE PROCEDURE BL_DM.load_dm_orders()
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    rec RECORD;
+    formatted_date_id INT8;
+    rows_affected INT := 0;
+BEGIN
+    FOR rec IN
+        SELECT DISTINCT
+            o.ordernumber::VARCHAR AS ordernumber,  -- Ensure ordernumber is treated as VARCHAR
+            o.payment_method_id AS payment_method_surr_id,
+            o.dealsize_id AS dealsize_surr_id,
+            o.product_id AS product_surr_id,
+            o.customer_id AS customer_surr_id,
+            COALESCE(TO_CHAR(o.event_dt, 'DDMMYYYY')::INT8, -1) AS date_id,
+            o.sales,
+            o.quantityordered,
+            (o.sales * o.quantityordered) AS total_cost,
+            o.ta_insert_dt,
+            CURRENT_TIMESTAMP AS ta_update_dt,
+            o.event_dt,
+            o.source_system,
+            o.source_entity
+        FROM BL_3NF.CE_ORDERS o
+        WHERE EXISTS (SELECT 1 FROM BL_DM.dim_dates d WHERE d.date_id = COALESCE(TO_CHAR(o.event_dt, 'DDMMYYYY')::INT8, -1))
+        AND EXISTS (SELECT 1 FROM BL_DM.dim_customers c WHERE c.customer_surr_id = o.customer_id)
+        AND EXISTS (SELECT 1 FROM BL_DM.dim_payment_methods pm WHERE pm.payment_method_surr_id = o.payment_method_id)
+        AND EXISTS (SELECT 1 FROM BL_DM.dim_dealsizes ds WHERE ds.dealsize_surr_id = o.dealsize_id)
+        AND EXISTS (SELECT 1 FROM BL_DM.dim_products p WHERE p.product_surr_id = o.product_id)
+    LOOP
+        BEGIN
+            -- Check if the record already exists
+            IF EXISTS (SELECT 1 FROM BL_DM.fct_orders WHERE ordernumber = rec.ordernumber) THEN
+                -- Update the existing record
+                BEGIN
+                    UPDATE BL_DM.fct_orders
+                    SET payment_method_surr_id = rec.payment_method_surr_id,
+                        dealsize_surr_id = rec.dealsize_surr_id,
+                        product_surr_id = rec.product_surr_id,
+                        customer_surr_id = rec.customer_surr_id,
+                        date_id = rec.date_id,
+                        sales = rec.sales,
+                        quantityordered = rec.quantityordered,
+                        total_cost = rec.total_cost,
+                        ta_update_dt = rec.ta_update_dt,
+                        event_dt = rec.event_dt,
+                        source_system = rec.source_system,
+                        source_entity = rec.source_entity
+                    WHERE ordernumber = rec.ordernumber;
+                EXCEPTION
+                    WHEN OTHERS THEN
+                        -- Log the exception
+                        PERFORM BL_3NF.log_procedure_action('load_dm_orders', rows_affected, 'Error updating ordernumber: ' || rec.ordernumber || ' - ' || SQLERRM);
+                END;
+            ELSE
+                -- Insert the new record
+                BEGIN
+                    INSERT INTO BL_DM.fct_orders (ordernumber, payment_method_surr_id, dealsize_surr_id, product_surr_id, customer_surr_id, date_id, sales, quantityordered, total_cost, ta_insert_dt, ta_update_dt, event_dt, source_system, source_entity)
+                    VALUES (rec.ordernumber, rec.payment_method_surr_id, rec.dealsize_surr_id, rec.product_surr_id, rec.customer_surr_id, rec.date_id, rec.sales, rec.quantityordered, rec.total_cost, rec.ta_insert_dt, rec.ta_update_dt, rec.event_dt, rec.source_system, rec.source_entity);
+                EXCEPTION
+                    WHEN OTHERS THEN
+                        -- Log the exception
+                        PERFORM BL_3NF.log_procedure_action('load_dm_orders', rows_affected, 'Error inserting ordernumber: ' || rec.ordernumber || ' - ' || SQLERRM);
+                END;
+            END IF;
+            rows_affected := rows_affected + 1;
+        END;
+    END LOOP;
+
+    -- Log the action
+    PERFORM BL_3NF.log_procedure_action('load_dm_orders', rows_affected, 'Orders loaded successfully into DM');
+END;
+$$;
+
+
+
+
+-- Execute the procedures
+CALL BL_DM.load_dm_dealsizes();
+CALL BL_DM.load_dm_payment_methods();
+CALL BL_DM.load_dm_customers();
+CALL BL_DM.load_dm_products();
+CALL BL_DM.load_dm_dates();
+CALL BL_DM.load_dm_orders();
+
+
+-- Verify data in DM tables
+SELECT * FROM BL_DM.DIM_DEALSIZES ;
+SELECT * FROM BL_DM.DIM_PAYMENT_METHODS;
+SELECT * FROM BL_DM.DIM_CUSTOMERS LIMIT 10;
+SELECT * FROM BL_DM.DIM_PRODUCTS LIMIT 10;
+SELECT * FROM BL_DM.DIM_DATES LIMIT 10;
+
+-- Verify data in the fact table
+SELECT * FROM BL_DM.FCT_ORDERS LIMIT 10;
+
+

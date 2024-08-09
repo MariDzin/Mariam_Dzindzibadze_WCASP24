@@ -32,11 +32,11 @@ FROM combined_dealsizes cd
 WHERE NOT EXISTS (
     SELECT 1 FROM BL_3NF.CE_DEALSIZES
     WHERE DEALSIZE = cd.DEALSIZE
+      AND SOURCE_SYSTEM = cd.SOURCE_SYSTEM
+      AND SOURCE_ENTITY = cd.SOURCE_ENTITY
 );
 
 COMMIT;
-
-
 
 -- Creating PAYMENT_METHOD_ID sequence
 CREATE SEQUENCE IF NOT EXISTS BL_3NF.payment_method_id_seq;
@@ -72,10 +72,11 @@ FROM combined_payment_methods pm
 WHERE NOT EXISTS (
     SELECT 1 FROM BL_3NF.CE_PAYMENT_METHODS
     WHERE PAYMENT_METHOD = pm.PAYMENT_METHOD
+      AND SOURCE_SYSTEM = pm.SOURCE_SYSTEM
+      AND SOURCE_ENTITY = pm.SOURCE_ENTITY
 );
 
 COMMIT;
-
 
 -- Creating PRODUCT_ID sequence
 CREATE SEQUENCE IF NOT EXISTS BL_3NF.product_id_seq;
@@ -120,6 +121,8 @@ FROM combined_products p
 WHERE NOT EXISTS (
     SELECT 1 FROM BL_3NF.CE_PRODUCTS
     WHERE PRODUCTCODE = p.PRODUCTCODE
+      AND SOURCE_SYSTEM = p.SOURCE_SYSTEM
+      AND SOURCE_ENTITY = p.SOURCE_ENTITY
 );
 
 COMMIT;
@@ -158,10 +161,11 @@ FROM combined_countries c
 WHERE NOT EXISTS (
     SELECT 1 FROM BL_3NF.CE_COUNTRIES
     WHERE COUNTRY_NAME = c.COUNTRY_NAME
+      AND SOURCE_SYSTEM = c.SOURCE_SYSTEM
+      AND SOURCE_ENTITY = c.SOURCE_ENTITY
 );
 
 COMMIT;
-
 
 -- Creating STATE_ID sequence
 CREATE SEQUENCE IF NOT EXISTS BL_3NF.state_id_seq;
@@ -196,6 +200,8 @@ FROM combined_states s
 WHERE NOT EXISTS (
     SELECT 1 FROM BL_3NF.CE_STATES
     WHERE STATE_NAME = s.STATE_NAME
+      AND SOURCE_SYSTEM = s.SOURCE_SYSTEM
+      AND SOURCE_ENTITY = s.SOURCE_ENTITY
 );
 
 COMMIT;
@@ -246,10 +252,11 @@ FROM (
 WHERE NOT EXISTS (
     SELECT 1 FROM BL_3NF.CE_CITIES
     WHERE CITY_NAME = c.CITY_NAME
+      AND SOURCE_SYSTEM = c.SOURCE_SYSTEM
+      AND SOURCE_ENTITY = c.SOURCE_ENTITY
 );
 
 COMMIT;
-
 
 -- Creating ADDRESS_ID sequence
 CREATE SEQUENCE IF NOT EXISTS BL_3NF.address_id_seq;
@@ -296,11 +303,11 @@ FROM combined_addresses a
 WHERE NOT EXISTS (
     SELECT 1 FROM BL_3NF.CE_ADDRESSES
     WHERE ADDRESSLINE1 = a.ADDRESSLINE1
+      AND SOURCE_SYSTEM = a.SOURCE_SYSTEM
+      AND SOURCE_ENTITY = a.SOURCE_ENTITY
 );
 
 COMMIT;
-
-
 
 -- Creating CUSTOMER_ID sequence
 CREATE SEQUENCE IF NOT EXISTS BL_3NF.customer_id_seq;
@@ -332,8 +339,8 @@ WITH combined_customers AS (
         COALESCE(nous.customers_id::VARCHAR, 'n. a.') AS CUSTOMER_SRC_ID,
         COALESCE(a.address_id, -1) AS ADDRESS_ID,
         'sa_no_usa_orders' AS SOURCE_SYSTEM,
-        'src_no_usa_order' AS SOURCE_ENTITY
-    FROM sa_no_usa_orders.src_no_usa_order nous
+        'src_no_order' AS SOURCE_ENTITY
+    FROM sa_no_usa_orders.src_no_order nous
     LEFT JOIN BL_3NF.CE_ADDRESSES a 
     ON nous.address_line = a.addressline1
     AND a.source_system = 'sa_no_usa_orders'
@@ -361,11 +368,11 @@ FROM combined_customers cd
 WHERE NOT EXISTS (
     SELECT 1 FROM BL_3NF.CE_CUSTOMERS_SCD
     WHERE CUSTOMERNAME = cd.CUSTOMERNAME
+      AND SOURCE_SYSTEM = cd.SOURCE_SYSTEM
+      AND SOURCE_ENTITY = cd.SOURCE_ENTITY
 );
 
 COMMIT;
-
-
 
 -- Creating ORDERNUMBER sequence
 CREATE SEQUENCE IF NOT EXISTS BL_3NF.ordernumber_seq;
@@ -454,8 +461,8 @@ FROM combined_orders o
 WHERE NOT EXISTS (
     SELECT 1 FROM BL_3NF.CE_ORDERS
     WHERE ORDERNUMBER = o.ORDERNUMBER
+      AND SOURCE_SYSTEM = o.SOURCE_SYSTEM
+      AND SOURCE_ENTITY = o.SOURCE_ENTITY
 );
 
 COMMIT;
-
-

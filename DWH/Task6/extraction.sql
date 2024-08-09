@@ -1,7 +1,7 @@
 -- Creating DEALSIZE_ID sequence
 CREATE SEQUENCE IF NOT EXISTS BL_3NF.dealsize_id_seq;
 
--- Combining data from both sources
+-- Combining data from both sources and checking existence before inserting
 WITH combined_dealsizes AS (
     SELECT DISTINCT
         us.dealsize AS DEALSIZE,
@@ -29,17 +29,19 @@ SELECT
     cd.SOURCE_SYSTEM,
     cd.SOURCE_ENTITY
 FROM combined_dealsizes cd
-ON CONFLICT (DEALSIZE) DO NOTHING;
+WHERE NOT EXISTS (
+    SELECT 1 FROM BL_3NF.CE_DEALSIZES
+    WHERE DEALSIZE = cd.DEALSIZE
+);
 
 COMMIT;
 
-SELECT * FROM BL_3NF.CE_DEALSIZES;
 
 
 -- Creating PAYMENT_METHOD_ID sequence
 CREATE SEQUENCE IF NOT EXISTS BL_3NF.payment_method_id_seq;
 
--- Combining data from both sources
+-- Combining data from both sources and checking existence before inserting
 WITH combined_payment_methods AS (
     SELECT DISTINCT
         us.payment_method AS PAYMENT_METHOD,
@@ -67,17 +69,18 @@ SELECT
     pm.SOURCE_SYSTEM,
     pm.SOURCE_ENTITY
 FROM combined_payment_methods pm
-ON CONFLICT (PAYMENT_METHOD) DO NOTHING;
+WHERE NOT EXISTS (
+    SELECT 1 FROM BL_3NF.CE_PAYMENT_METHODS
+    WHERE PAYMENT_METHOD = pm.PAYMENT_METHOD
+);
 
 COMMIT;
-
-SELECT * FROM BL_3NF.CE_PAYMENT_METHODS;
 
 
 -- Creating PRODUCT_ID sequence
 CREATE SEQUENCE IF NOT EXISTS BL_3NF.product_id_seq;
 
--- Combining data from both sources
+-- Combining data from both sources and checking existence before inserting
 WITH combined_products AS (
     SELECT DISTINCT
         us.productcode AS PRODUCTCODE,
@@ -114,17 +117,17 @@ SELECT
     p.SOURCE_SYSTEM,
     p.SOURCE_ENTITY
 FROM combined_products p
-ON CONFLICT (PRODUCTCODE) DO NOTHING;
+WHERE NOT EXISTS (
+    SELECT 1 FROM BL_3NF.CE_PRODUCTS
+    WHERE PRODUCTCODE = p.PRODUCTCODE
+);
 
 COMMIT;
-
-SELECT * FROM BL_3NF.CE_PRODUCTS;
-
 
 -- Creating COUNTRY_ID sequence
 CREATE SEQUENCE IF NOT EXISTS BL_3NF.country_id_seq;
 
--- Combining data from both sources
+-- Combining data from both sources and checking existence before inserting
 WITH combined_countries AS (
     SELECT DISTINCT
         COALESCE(us.country, 'n. a.') AS COUNTRY_NAME,
@@ -152,17 +155,18 @@ SELECT
     c.SOURCE_SYSTEM,
     c.SOURCE_ENTITY
 FROM combined_countries c
-ON CONFLICT (COUNTRY_NAME) DO NOTHING;
+WHERE NOT EXISTS (
+    SELECT 1 FROM BL_3NF.CE_COUNTRIES
+    WHERE COUNTRY_NAME = c.COUNTRY_NAME
+);
 
 COMMIT;
-
-SELECT * FROM BL_3NF.CE_COUNTRIES;
 
 
 -- Creating STATE_ID sequence
 CREATE SEQUENCE IF NOT EXISTS BL_3NF.state_id_seq;
 
--- Combining data from only one source
+-- Combining data from only one source and checking existence before inserting
 WITH combined_states AS (
     SELECT DISTINCT
         us.state AS STATE_NAME,
@@ -189,17 +193,17 @@ SELECT
     s.SOURCE_SYSTEM,
     s.SOURCE_ENTITY
 FROM combined_states s
-ON CONFLICT (STATE_NAME) DO NOTHING;
+WHERE NOT EXISTS (
+    SELECT 1 FROM BL_3NF.CE_STATES
+    WHERE STATE_NAME = s.STATE_NAME
+);
 
 COMMIT;
-
-SELECT * FROM BL_3NF.CE_STATES;
-
 
 -- Creating CITY_ID sequence
 CREATE SEQUENCE IF NOT EXISTS BL_3NF.city_id_seq;
 
--- Combining data from both sources
+-- Combining data from both sources and checking existence before inserting
 WITH us_cities AS (
     SELECT DISTINCT
         us.city AS CITY_NAME,
@@ -239,17 +243,18 @@ FROM (
     UNION ALL
     SELECT * FROM non_us_cities
 ) c
-ON CONFLICT (CITY_NAME) DO NOTHING;
+WHERE NOT EXISTS (
+    SELECT 1 FROM BL_3NF.CE_CITIES
+    WHERE CITY_NAME = c.CITY_NAME
+);
 
 COMMIT;
-
-SELECT * FROM BL_3NF.CE_CITIES;
 
 
 -- Creating ADDRESS_ID sequence
 CREATE SEQUENCE IF NOT EXISTS BL_3NF.address_id_seq;
 
--- Combining data from both sources
+-- Combining data from both sources and checking existence before inserting
 WITH combined_addresses AS (
     SELECT DISTINCT
         COALESCE(us.addressline1, 'n. a.') AS ADDRESSLINE1,
@@ -288,17 +293,19 @@ SELECT
     a.SOURCE_SYSTEM,
     a.SOURCE_ENTITY
 FROM combined_addresses a
-ON CONFLICT (ADDRESSLINE1) DO NOTHING;
+WHERE NOT EXISTS (
+    SELECT 1 FROM BL_3NF.CE_ADDRESSES
+    WHERE ADDRESSLINE1 = a.ADDRESSLINE1
+);
 
 COMMIT;
 
-SELECT * FROM BL_3NF.CE_ADDRESSES;
 
 
 -- Creating CUSTOMER_ID sequence
 CREATE SEQUENCE IF NOT EXISTS BL_3NF.customer_id_seq;
 
--- Combining data from both sources
+-- Combining data from both sources and checking existence before inserting
 WITH combined_customers AS (
     SELECT DISTINCT
         COALESCE(us.customer_id::BIGINT, -1) AS CUSTOMER_ID,
@@ -351,17 +358,19 @@ SELECT
     cd.SOURCE_SYSTEM,
     cd.SOURCE_ENTITY
 FROM combined_customers cd
-ON CONFLICT (CUSTOMERNAME) DO NOTHING;
+WHERE NOT EXISTS (
+    SELECT 1 FROM BL_3NF.CE_CUSTOMERS_SCD
+    WHERE CUSTOMERNAME = cd.CUSTOMERNAME
+);
 
 COMMIT;
 
-SELECT * FROM BL_3NF.CE_CUSTOMERS_SCD;
 
 
 -- Creating ORDERNUMBER sequence
 CREATE SEQUENCE IF NOT EXISTS BL_3NF.ordernumber_seq;
 
--- Combining data from both sources
+-- Combining data from both sources and checking existence before inserting
 WITH combined_orders AS (
     SELECT DISTINCT
         COALESCE(us.ordernumber::BIGINT, -1) AS ORDERNUMBER,
@@ -442,8 +451,11 @@ SELECT
     o.SOURCE_SYSTEM,
     o.SOURCE_ENTITY
 FROM combined_orders o
-ON CONFLICT (ORDERNUMBER) DO NOTHING;
+WHERE NOT EXISTS (
+    SELECT 1 FROM BL_3NF.CE_ORDERS
+    WHERE ORDERNUMBER = o.ORDERNUMBER
+);
 
 COMMIT;
 
-SELECT * FROM BL_3NF.CE_ORDERS;
+

@@ -1,10 +1,8 @@
 -- Drop the table if it already exists to start fresh
 DROP TABLE IF EXISTS BL_DM.fct_orders CASCADE;
 
-
--- Create the logging table:
-
-CREATE TABLE IF NOT EXISTS BL_3NF.procedure_logs (
+-- Create the logging table in the BL_CL schema:
+CREATE TABLE IF NOT EXISTS BL_CL.procedure_logs (
     id SERIAL PRIMARY KEY,
     procedure_name TEXT,
     rows_affected INT,
@@ -12,18 +10,56 @@ CREATE TABLE IF NOT EXISTS BL_3NF.procedure_logs (
     message TEXT
 );
 
--- define the logging function:
-CREATE OR REPLACE FUNCTION BL_3NF.log_procedure_action(procedure_name TEXT, rows_affected INT, message TEXT)
+
+SELECT * 
+FROM information_schema.tables 
+WHERE table_schema = 'bl_3nf' 
+AND table_name = 'src_orders';
+
+
+-- creating table
+
+CREATE table if not exists bl_3nf.src_orders (
+    ordernumber BIGINT PRIMARY KEY,
+    orderdate DATE,
+    customer_id BIGINT,
+    product_id BIGINT,
+    dealsize_id BIGINT,
+    payment_method_id BIGINT,
+    event_dt date,
+    sales NUMERIC,
+    quantityordered INT,
+    source_system TEXT,
+    source_entity TEXT
+);
+SELECT 
+    o.ordernumber,
+    o.payment_method_id,
+    o.dealsize_id,
+    o.product_id,
+    o.customer_id,
+    o.event_dt, 
+    o.sales,
+    o.quantityordered,
+    o.ta_insert_dt,
+    o.ta_update_dt,
+    o.source_system,
+    o.source_entity
+FROM bl_3nf.ce_orders o 
+
+
+
+-- Define the logging function in the BL_CL schema:
+CREATE OR REPLACE FUNCTION BL_CL.log_procedure_action(procedure_name TEXT, rows_affected INT, message TEXT)
 RETURNS VOID AS $$
 BEGIN
-    INSERT INTO BL_3NF.procedure_logs (procedure_name, rows_affected, message)
+    INSERT INTO BL_CL.procedure_logs (procedure_name, rows_affected, message)
     VALUES (procedure_name, rows_affected, message);
 END;
 $$ LANGUAGE plpgsql;
 
-
 -- Create the main fact table as partitioned
-CREATE TABLE if not exists BL_DM.fct_orders (
+CREATE TABLE IF NOT EXISTS BL_DM.fct_orders (
     ordernumber BIGINT,
     payment_method_surr_id INT,
     dealsize_surr_id INT,
@@ -37,9 +73,13 @@ CREATE TABLE if not exists BL_DM.fct_orders (
     ta_update_dt TIMESTAMP,
     event_dt DATE,
     source_system TEXT,
-    source_entity TEXT
+    source_entity TEXT,
+    CONSTRAINT fk_payment_method FOREIGN KEY (payment_method_surr_id) REFERENCES BL_DM.dim_payment_methods(payment_method_surr_id),
+    CONSTRAINT fk_dealsize FOREIGN KEY (dealsize_surr_id) REFERENCES BL_DM.dim_dealsizes(dealsize_surr_id),
+    CONSTRAINT fk_product FOREIGN KEY (product_surr_id) REFERENCES BL_DM.dim_products(product_surr_id),
+    CONSTRAINT fk_customer FOREIGN KEY (customer_surr_id) REFERENCES BL_DM.dim_customers(customer_surr_id),
+    CONSTRAINT fk_date FOREIGN KEY (date_id) REFERENCES BL_DM.dim_dates(date_id)
 ) PARTITION BY RANGE (event_dt);
-
 
 -- Partitions for the years 2003, 2004, 2005
 CREATE TABLE IF NOT EXISTS BL_DM.fct_orders_2003 PARTITION OF BL_DM.fct_orders
@@ -50,12 +90,8 @@ CREATE TABLE IF NOT EXISTS BL_DM.fct_orders_2004 PARTITION OF BL_DM.fct_orders
 
 CREATE TABLE IF NOT EXISTS BL_DM.fct_orders_2005 PARTITION OF BL_DM.fct_orders
     FOR VALUES FROM ('2005-01-01') TO ('2006-01-01');
-   
-   
 
-   
--- procedure
--- Create the procedure to handle data load with dynamic partitions
+-- Updated procedure with explicit type casts
 CREATE OR REPLACE PROCEDURE BL_DM.load_dm_fact_table()
 LANGUAGE plpgsql
 AS $$
@@ -95,26 +131,60 @@ quantityordered = t.quantityordered, total_cost = t.total_cost, ta_update_dt = t
 
     GET DIAGNOSTICS rows_affected = ROW_COUNT;
 
-    -- Log the action
-    PERFORM BL_3NF.log_procedure_action('load_dm_fact_table', rows_affected, 'Orders loaded successfully into DM. Rows affected: ' || rows_affected);
+    -- Log the action with explicit type casting
+    PERFORM BL_CL.log_procedure_action('load_dm_fact_table'::TEXT, rows_affected::INT, 'Orders loaded successfully into DM. Rows affected: ' || rows_affected::TEXT);
 
     -- Drop the temporary table
     EXECUTE 'DROP TABLE ' || temp_partition_name;
-
 
 END;
 $$;
 
 
+CREATE OR REPLACE PROCEDURE BL_3NF.load_3nf_fact_table_incrementally()
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    rows_affected INT := 0;
+BEGIN
+    -- Insert new records into the CE_ORDERS table incrementally
+    INSERT INTO BL_3NF.CE_ORDERS (ordernumber, payment_method_id, dealsize_id, product_id, customer_id, event_dt, sales, quantityordered, ta_insert_dt, ta_update_dt, source_system, source_entity)
+    SELECT DISTINCT
+        ordernumber,
+        payment_method_id,
+        dealsize_id,
+        product_id,
+        customer_id,
+        event_dt,  
+        sales,
+        quantityordered,
+        CURRENT_TIMESTAMP,
+        CURRENT_TIMESTAMP,
+        source_system,
+        source_entity
+    FROM BL_3NF.src_orders
+    WHERE NOT EXISTS (
+        SELECT 1 FROM BL_3NF.CE_ORDERS o
+        WHERE o.ordernumber = BL_3NF.src_orders.ordernumber
+    );
 
+    GET DIAGNOSTICS rows_affected = ROW_COUNT;
+
+    -- Log the action
+    PERFORM BL_CL.log_procedure_action('load_3nf_fact_table_incrementally', rows_affected, 'Orders loaded successfully into 3NF fact table. Rows affected: ' || rows_affected);
+END;
+$$;
+
+
+-- Example of running the procedures
 CALL BL_DM.load_dm_fact_table();
+CALL BL_3NF.load_3nf_fact_table_incrementally();
 
-select * from BL_DM.fct_orders fo 
+-- Example of querying the fact table
+SELECT * FROM BL_DM.fct_orders LIMIT 10;
 
-
-SELECT * FROM BL_3NF.procedure_logs WHERE procedure_name = 'load_dm_fact_table' ORDER BY log_time DESC;
-
-
+-- Example of querying the procedure logs
+SELECT * FROM BL_CL.procedure_logs ORDER BY log_timestamp DESC;
 
 
 -- Check for duplicates in the fact table by counting occurrences of each ordernumber
@@ -123,29 +193,30 @@ FROM BL_DM.fct_orders
 GROUP BY ordernumber
 HAVING COUNT(*) > 1;
 
--- Verify that all business keys  from the source table are loaded into the destination table
+-- Verify that all business keys from the source table are loaded into the destination table
 SELECT ordernumber
 FROM BL_3NF.CE_ORDERS
 EXCEPT
 SELECT ordernumber
 FROM BL_DM.fct_orders;
 
--- Count the number of records in the source table for the last 3 months
+-- Count the number of records in the source table for the last 3 months based on the maximum date in the table
 SELECT COUNT(*) 
 FROM BL_3NF.CE_ORDERS 
-WHERE event_dt BETWEEN CURRENT_DATE - INTERVAL '3 months' AND CURRENT_DATE;
+WHERE event_dt BETWEEN (SELECT MAX(event_dt) FROM BL_3NF.CE_ORDERS) - INTERVAL '3 months' 
+AND (SELECT MAX(event_dt) FROM BL_3NF.CE_ORDERS);
+
 
 -- Get the minimum and maximum event_dt from the source table to understand the date range of the data
-
 SELECT MIN(event_dt), MAX(event_dt) 
 FROM BL_3NF.CE_ORDERS;
 
-
 -- Count the number of records in the source table for the year 2003
-
 SELECT COUNT(*) 
 FROM BL_3NF.CE_ORDERS 
 WHERE event_dt BETWEEN '2003-01-01' AND '2003-12-31';
+
+
 
 
 

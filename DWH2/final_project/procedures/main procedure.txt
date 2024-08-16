@@ -1,176 +1,157 @@
+-- Create Schemas
 CREATE SCHEMA IF NOT EXISTS sa_no_usa_orders;
 CREATE SCHEMA IF NOT EXISTS sa_us_orders;
-CREATE EXTENSION IF NOT EXISTS file_fdw;  
 
+-- Create Extension for file_fdw if not already present
+CREATE EXTENSION IF NOT EXISTS file_fdw;
 
-    -- Drop Foreign Tables if they exist
-    DROP FOREIGN TABLE IF EXISTS sa_no_usa_orders.ext_no_usa_order;
-    DROP FOREIGN TABLE IF  EXISTS sa_us_orders.ext_us_order;
+-- Drop Foreign Tables if they exist
+DROP FOREIGN TABLE IF EXISTS sa_no_usa_orders.ext_no_usa_order;
+DROP FOREIGN TABLE IF EXISTS sa_us_orders.ext_us_order;
 
+-- Create Foreign Table for Non-USA Orders
+CREATE FOREIGN TABLE IF NOT EXISTS sa_no_usa_orders.ext_no_usa_order (
+    order_id VARCHAR(150),
+    quantity VARCHAR(150),
+    price_for_each VARCHAR(150),
+    sales_amount VARCHAR(150),
+    date_of_order VARCHAR(150),
+    deal_size VARCHAR(150),
+    quarter VARCHAR(150),
+    day VARCHAR(150),
+    month VARCHAR(150),
+    year VARCHAR(150),
+    productline_id VARCHAR(150),
+    product_line VARCHAR(150),
+    ms_rp VARCHAR(150),
+    product_model VARCHAR(150),
+    customers_id VARCHAR(150),
+    cust_name VARCHAR(150),
+    cust_firstname VARCHAR(150),
+    cust_lastname VARCHAR(150),
+    phone_number VARCHAR(150),
+    address_id_num VARCHAR(150),
+    address_line VARCHAR(150),
+    city_name VARCHAR(150),
+    postcode VARCHAR(150),
+    country_name VARCHAR(150),
+    payment_method VARCHAR(150)
+) SERVER file_server 
+OPTIONS (
+    filename 'C:\\Program Files\\PostgreSQL\\16\\data\\updated_csvfile_no_usa.csv',
+    format 'csv',
+    header 'true',
+    delimiter ',',
+    quote '"',
+    escape E'\\', 
+    null 'NULL',
+    encoding 'UTF8'
+);
 
+-- Create Foreign Table for USA Orders
+CREATE FOREIGN TABLE IF NOT EXISTS sa_us_orders.ext_us_order (
+    ordernumber VARCHAR(150),
+    quantityordered VARCHAR(150),
+    priceeach VARCHAR(150),
+    sales VARCHAR(150),
+    orderdate VARCHAR(150),
+    dealsize VARCHAR(150),
+    qtr_id VARCHAR(150),
+    day_id VARCHAR(150),
+    month_id VARCHAR(150),
+    year_id VARCHAR(150),
+    productline_id VARCHAR(150),
+    productline VARCHAR(150),
+    msrp VARCHAR(150),
+    productcode VARCHAR(150),
+    customer_id VARCHAR(150),
+    customername VARCHAR(150),
+    contactfirstname VARCHAR(150),
+    contactlastname VARCHAR(150),
+    phone VARCHAR(150),
+    address_id VARCHAR(150),
+    addressline1 VARCHAR(150),
+    city VARCHAR(150),
+    state VARCHAR(150),
+    postalcode VARCHAR(150),
+    country VARCHAR(150),
+    payment_method VARCHAR(150)
+) SERVER file_server 
+OPTIONS (
+    filename 'C:\\Program Files\\PostgreSQL\\16\\data\\updated_csvfile.csv',
+    format 'csv',
+    header 'true',
+    delimiter ',',
+    quote '"',
+    escape E'\\', 
+    null 'NULL',
+    encoding 'UTF8'
+);
 
-    -- Create Foreign Table for Non-USA Orders
-    CREATE FOREIGN TABLE IF NOT EXISTS sa_no_usa_orders.ext_no_usa_order (
-        order_id VARCHAR(150),
-        quantity VARCHAR(150),
-        price_for_each VARCHAR(150),
-        sales_amount VARCHAR(150),
-        date_of_order VARCHAR(150),
-        deal_size VARCHAR(150),
-        quarter VARCHAR(150),
-        day VARCHAR(150),
-        month VARCHAR(150),
-        year VARCHAR(150),
-        productline_id VARCHAR(150),
-        product_line VARCHAR(150),
-        ms_rp VARCHAR(150),
-        product_model VARCHAR(150),
-        customers_id VARCHAR(150),
-        cust_name VARCHAR(150),
-        cust_firstname VARCHAR(150),
-        cust_lastname VARCHAR(150),
-        phone_number VARCHAR(150),
-        address_id_num VARCHAR(150),
-        address_line VARCHAR(150),
-        city_name VARCHAR(150),
-        postcode VARCHAR(150),
-        country_name VARCHAR(150),
-        payment_method VARCHAR(150)
-    ) SERVER file_server 
-    OPTIONS (
-        filename 'C:\\Program Files\\PostgreSQL\\16\\data\\updated_csvfile_no_usa.csv',
-        format 'csv',
-        header 'true',
-        delimiter ',',
-        quote '"',
-        escape E'\\', 
-        null 'NULL',
-        encoding 'UTF8'
-    );
+-- Create Source Tables
 
-    -- Create Foreign Table for USA Orders
-    CREATE FOREIGN TABLE IF NOT EXISTS sa_us_orders.ext_us_order (
-        ordernumber VARCHAR(150),
-        quantityordered VARCHAR(150),
-        priceeach VARCHAR(150),
-        sales VARCHAR(150),
-        orderdate VARCHAR(150),
-        dealsize VARCHAR(150),
-        qtr_id VARCHAR(150),
-        day_id VARCHAR(150),
-        month_id VARCHAR(150),
-        year_id VARCHAR(150),
-        productline_id VARCHAR(150),
-        productline VARCHAR(150),
-        msrp VARCHAR(150),
-        productcode VARCHAR(150),
-        customer_id VARCHAR(150),
-        customername VARCHAR(150),
-        contactfirstname VARCHAR(150),
-        contactlastname VARCHAR(150),
-        phone VARCHAR(150),
-        address_id VARCHAR(150),
-        addressline1 VARCHAR(150),
-        city VARCHAR(150),
-        state VARCHAR(150),
-        postalcode VARCHAR(150),
-        country VARCHAR(150),
-        payment_method VARCHAR(150)
-    ) SERVER file_server 
-    OPTIONS (
-        filename 'C:\\Program Files\\PostgreSQL\\16\\data\\jeff.csv',
-        format 'csv',
-        header 'true',
-        delimiter ',',
-        quote '"',
-        escape E'\\', 
-        null 'NULL',
-        encoding 'UTF8'
-    );
+-- Create source table for non-USA orders
+CREATE TABLE IF NOT EXISTS sa_no_usa_orders.src_no_usa_order (
+    order_id VARCHAR(150),
+    quantity VARCHAR(150),
+    price_for_each VARCHAR(150),
+    sales_amount VARCHAR(150),
+    date_of_order VARCHAR(150),
+    deal_size VARCHAR(150),
+    quarter VARCHAR(150),
+    day VARCHAR(150),
+    month VARCHAR(150),
+    year VARCHAR(150),
+    productline_id VARCHAR(150),
+    product_line VARCHAR(150),
+    ms_rp VARCHAR(150),
+    product_model VARCHAR(150),
+    customers_id VARCHAR(150),
+    cust_name VARCHAR(150),
+    cust_firstname VARCHAR(150),
+    cust_lastname VARCHAR(150),
+    phone_number VARCHAR(150),
+    address_id_num VARCHAR(150),
+    address_line VARCHAR(150),
+    city_name VARCHAR(150),
+    postcode VARCHAR(150),
+    country_name VARCHAR(150),
+    payment_method VARCHAR(150),
+    receive_date date,
+    is_processed boolean default false
+);
 
-
-
-
-
---  Procedure for Creating Source Tables
-
-
-CREATE OR REPLACE PROCEDURE public.create_src_tables_procedure()
-LANGUAGE plpgsql
-AS $$
-BEGIN
-    -- Create source table for non-USA orders
-    CREATE TABLE IF NOT EXISTS sa_no_usa_orders.src_no_usa_order (
-        order_id VARCHAR(150),
-        quantity VARCHAR(150),
-        price_for_each VARCHAR(150),
-        sales_amount VARCHAR(150),
-        date_of_order VARCHAR(150),
-        deal_size VARCHAR(150),
-        quarter VARCHAR(150),
-        day VARCHAR(150),
-        month VARCHAR(150),
-        year VARCHAR(150),
-        productline_id VARCHAR(150),
-        product_line VARCHAR(150),
-        ms_rp VARCHAR(150),
-        product_model VARCHAR(150),
-        customers_id VARCHAR(150),
-        cust_name VARCHAR(150),
-        cust_firstname VARCHAR(150),
-        cust_lastname VARCHAR(150),
-        phone_number VARCHAR(150),
-        address_id_num VARCHAR(150),
-        address_line VARCHAR(150),
-        city_name VARCHAR(150),
-        postcode VARCHAR(150),
-        country_name VARCHAR(150),
-        payment_method VARCHAR(150)
-    );
-
-    -- Create source table for USA orders
-    CREATE TABLE IF NOT EXISTS sa_us_orders.src_us_order (
-        ordernumber VARCHAR(150),
-        quantityordered VARCHAR(150),
-        priceeach VARCHAR(150),
-        sales VARCHAR(150),
-        orderdate VARCHAR(150),
-        dealsize VARCHAR(150),
-        qtr_id VARCHAR(150),
-        day_id VARCHAR(150),
-        month_id VARCHAR(150),
-        year_id VARCHAR(150),
-        productline_id VARCHAR(150),
-        productline VARCHAR(150),
-        msrp VARCHAR(150),
-        productcode VARCHAR(150),
-        customer_id VARCHAR(150),
-        customername VARCHAR(150),
-        contactfirstname VARCHAR(150),
-        contactlastname VARCHAR(150),
-        phone VARCHAR(150),
-        address_id VARCHAR(150),
-        addressline1 VARCHAR(150),
-        city VARCHAR(150),
-        state VARCHAR(150),
-        postalcode VARCHAR(150),
-        country VARCHAR(150),
-        payment_method VARCHAR(150)
-    );
-
-    RAISE NOTICE 'Source tables created';
-    
-EXCEPTION
-    WHEN OTHERS THEN
-        -- Raise the exception to propagate the error
-        RAISE NOTICE 'Source tables are not created: %', SQLERRM;
-END;
-$$;
-
--- Call the procedure to create source tables
-CALL public.create_src_tables_procedure();
-
-
+-- Create source table for USA orders
+CREATE TABLE IF NOT EXISTS sa_us_orders.src_us_order (
+    ordernumber VARCHAR(150),
+    quantityordered VARCHAR(150),
+    priceeach VARCHAR(150),
+    sales VARCHAR(150),
+    orderdate VARCHAR(150),
+    dealsize VARCHAR(150),
+    qtr_id VARCHAR(150),
+    day_id VARCHAR(150),
+    month_id VARCHAR(150),
+    year_id VARCHAR(150),
+    productline_id VARCHAR(150),
+    productline VARCHAR(150),
+    msrp VARCHAR(150),
+    productcode VARCHAR(150),
+    customer_id VARCHAR(150),
+    customername VARCHAR(150),
+    contactfirstname VARCHAR(150),
+    contactlastname VARCHAR(150),
+    phone VARCHAR(150),
+    address_id VARCHAR(150),
+    addressline1 VARCHAR(150),
+    city VARCHAR(150),
+    state VARCHAR(150),
+    postalcode VARCHAR(150),
+    country VARCHAR(150),
+    payment_method VARCHAR(150),
+    receive_date date,
+    is_processed boolean default false
+);
 
 -- Create Logging Table
 CREATE TABLE IF NOT EXISTS public.logging (
@@ -181,166 +162,128 @@ CREATE TABLE IF NOT EXISTS public.logging (
     message TEXT
 );
 
+-- Log operation procedure
+CREATE OR REPLACE PROCEDURE public.log_operation(
+    procedure_name VARCHAR(255),
+    rows_affected INT,
+    message TEXT
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    INSERT INTO public.logging (
+        log_datetime, 
+        procedure_name, 
+        rows_affected, 
+        message
+    )
+    VALUES (
+        CLOCK_TIMESTAMP(),
+        procedure_name,
+        rows_affected,
+        message
+    );
+END;
+$$;
 
-
--- Procedure for Non-USA Orders
+-- Inserting data into no USA orders
 CREATE OR REPLACE PROCEDURE sa_no_usa_orders.insert_data_into_src_no_usa_procedure()
 LANGUAGE plpgsql
 AS $$
-DECLARE 
-    inserted_count INTEGER;
 BEGIN
-    WITH inserted AS (
-        INSERT INTO sa_no_usa_orders.src_no_usa_order (
-            order_id, quantity, price_for_each, sales_amount, date_of_order, 
-            deal_size, quarter, day, month, year, productline_id, product_line, 
-            ms_rp, product_model, customers_id, cust_name, cust_firstname, 
-            cust_lastname, phone_number, address_id_num, address_line, 
-            city_name, postcode, country_name, payment_method
-        )
-        SELECT DISTINCT
-            nous.order_id::VARCHAR(150),
-            nous.quantity::VARCHAR(150),
-            nous.price_for_each::VARCHAR(150),
-            nous.sales_amount::VARCHAR(150),
-            nous.date_of_order::VARCHAR(150),
-            nous.deal_size::VARCHAR(150),
-            nous.quarter::VARCHAR(150),
-            nous.day::VARCHAR(150),
-            nous.month::VARCHAR(150),
-            nous.year::VARCHAR(150),
-            nous.productline_id::VARCHAR(150),
-            nous.product_line::VARCHAR(150),
-            nous.ms_rp::VARCHAR(150),
-            nous.product_model::VARCHAR(150),
-            nous.customers_id::VARCHAR(150),
-            nous.cust_name::VARCHAR(150),
-            nous.cust_firstname::VARCHAR(150),
-            nous.cust_lastname::VARCHAR(150),
-            nous.phone_number::VARCHAR(150),
-            nous.address_id_num::VARCHAR(150),
-            nous.address_line::VARCHAR(150),
-            nous.city_name::VARCHAR(150),
-            nous.postcode::VARCHAR(150),
-            nous.country_name::VARCHAR(150),
-            nous.payment_method::VARCHAR(150)
-        FROM sa_no_usa_orders.ext_no_usa_order nous
-        WHERE NOT EXISTS (
-            SELECT 1 
-            FROM sa_no_usa_orders.src_no_usa_order src
-            WHERE src.order_id = nous.order_id
-        )
-        RETURNING 1
+    INSERT INTO sa_no_usa_orders.src_no_usa_order (
+        order_id, quantity, price_for_each, sales_amount, date_of_order, 
+        deal_size, quarter, day, month, year, productline_id, product_line, 
+        ms_rp, product_model, customers_id, cust_name, cust_firstname, 
+        cust_lastname, phone_number, address_id_num, address_line, 
+        city_name, postcode, country_name, payment_method, receive_date
     )
-    SELECT COUNT(*) INTO inserted_count FROM inserted;
-    
-    -- Log the operation
-    INSERT INTO public.logging (procedure_name, rows_affected, message)
-    VALUES ('insert_data_into_src_no_usa_procedure', inserted_count, 'Inserted new data into src_no_usa_order table');
-
-    RAISE NOTICE 'Inserted rows into src_no_usa_order: %', inserted_count;
-EXCEPTION
-    WHEN OTHERS THEN
-        INSERT INTO public.logging (procedure_name, rows_affected, message)
-        VALUES ('insert_data_into_src_no_usa_procedure', 0, 'Error occurred: ' || SQLERRM);
-        RAISE NOTICE 'Error occurred while inserting data into src_no_usa_order: %', SQLERRM;
+    SELECT DISTINCT
+        nous.order_id,
+        nous.quantity,
+        nous.price_for_each,
+        nous.sales_amount,
+        nous.date_of_order,
+        nous.deal_size,
+        nous.quarter,
+        nous.day,
+        nous.month,
+        nous.year,
+        nous.productline_id,
+        nous.product_line,
+        nous.ms_rp,
+        nous.product_model,
+        nous.customers_id,
+        nous.cust_name,
+        nous.cust_firstname,
+        nous.cust_lastname,
+        nous.phone_number,
+        nous.address_id_num,
+        nous.address_line,
+        nous.city_name,
+        nous.postcode,
+        nous.country_name,
+        nous.payment_method,
+        current_date 
+    FROM sa_no_usa_orders.ext_no_usa_order nous;
 END;
 $$;
 
--- Procedure for USA Orders
+-- Procedure for inserting data into USA Orders
 CREATE OR REPLACE PROCEDURE sa_us_orders.insert_data_into_src_us_procedure()
 LANGUAGE plpgsql
 AS $$
-DECLARE 
-    inserted_count INTEGER;
 BEGIN
-    WITH inserted AS (
-        INSERT INTO sa_us_orders.src_us_order (
-            ordernumber, quantityordered, priceeach, sales, orderdate, dealsize, 
-            qtr_id, day_id, month_id, year_id, productline_id, productline, 
-            msrp, productcode, customer_id, customername, contactfirstname, 
-            contactlastname, phone, address_id, addressline1, city, state, 
-            postalcode, country, payment_method
-        )
-        SELECT DISTINCT
-            us.ordernumber::VARCHAR(150),
-            us.quantityordered::VARCHAR(150),
-            us.priceeach::VARCHAR(150),
-            us.sales::VARCHAR(150),
-            us.orderdate::VARCHAR(150),
-            us.dealsize::VARCHAR(150),
-            us.qtr_id::VARCHAR(150),
-            us.day_id::VARCHAR(150),
-            us.month_id::VARCHAR(150),
-            us.year_id::VARCHAR(150),
-            us.productline_id::VARCHAR(150),
-            us.productline::VARCHAR(150),
-            us.msrp::VARCHAR(150),
-            us.productcode::VARCHAR(150),
-            us.customer_id::VARCHAR(150),
-            us.customername::VARCHAR(150),
-            us.contactfirstname::VARCHAR(150),
-            us.contactlastname::VARCHAR(150),
-            us.phone::VARCHAR(150),
-            us.address_id::VARCHAR(150),
-            us.addressline1::VARCHAR(150),
-            us.city::VARCHAR(150),
-            us.state::VARCHAR(150),
-            us.postalcode::VARCHAR(150),
-            us.country::VARCHAR(150),
-            us.payment_method::VARCHAR(150)
-        FROM sa_us_orders.ext_us_order us
-        WHERE NOT EXISTS (
-            SELECT 1 
-            FROM sa_us_orders.src_us_order src
-            WHERE src.ordernumber = us.ordernumber
-        )
-        RETURNING 1
+    INSERT INTO sa_us_orders.src_us_order (
+        ordernumber, quantityordered, priceeach, sales, orderdate, dealsize, 
+        qtr_id, day_id, month_id, year_id, productline_id, productline, 
+        msrp, productcode, customer_id, customername, contactfirstname, 
+        contactlastname, phone, address_id, addressline1, city, state, 
+        postalcode, country, payment_method, receive_date
     )
-    SELECT COUNT(*) INTO inserted_count FROM inserted;
-    
-    -- Log the operation
-    INSERT INTO public.logging (procedure_name, rows_affected, message)
-    VALUES ('insert_data_into_src_us_procedure', inserted_count, 'Inserted new data into src_us_order table');
-
-    RAISE NOTICE 'Inserted rows into src_us_order: %', inserted_count;
-EXCEPTION
-    WHEN OTHERS THEN
-        INSERT INTO public.logging (procedure_name, rows_affected, message)
-        VALUES ('insert_data_into_src_us_procedure', 0, 'Error occurred: ' || SQLERRM);
-        RAISE NOTICE 'Error occurred while inserting data into src_us_order: %', SQLERRM;
+    SELECT DISTINCT
+        us.ordernumber,
+        us.quantityordered,
+        us.priceeach,
+        us.sales,
+        us.orderdate,
+        us.dealsize,
+        us.qtr_id,
+        us.day_id,
+        us.month_id,
+        us.year_id,
+        us.productline_id,
+        us.productline,
+        us.msrp,
+        us.productcode,
+        us.customer_id,
+        us.customername,
+        us.contactfirstname,
+        us.contactlastname,
+        us.phone,
+        us.address_id,
+        us.addressline1,
+        us.city,
+        us.state,
+        us.postalcode,
+        us.country,
+        us.payment_method,
+        CURRENT_DATE 
+    FROM sa_us_orders.ext_us_order us;
 END;
 $$;
 
 
--- Create Indexes for Efficient Lookup
-CREATE INDEX IF NOT EXISTS order_id_index_no_usa 
-    ON sa_no_usa_orders.src_no_usa_order(order_id);
-
-CREATE INDEX IF NOT EXISTS ordernumber_index_us 
-    ON sa_us_orders.src_us_order(ordernumber);
-
--- Call the Procedures to Insert Data
 CALL sa_no_usa_orders.insert_data_into_src_no_usa_procedure();
 CALL sa_us_orders.insert_data_into_src_us_procedure();
 
 
--- Step 11: Verify the Data Insertion
-SELECT * FROM sa_us_orders.src_us_order LIMIT 10;
-SELECT * FROM sa_no_usa_orders.src_no_usa_order LIMIT 10;
 
--- Check specific cases, for example:
-SELECT * FROM sa_us_orders.src_us_order WHERE customer_id = '29' AND contactlastname = 'old';
 
-SELECT *
-FROM sa_us_orders.ext_us_order us
-WHERE NOT EXISTS (
-    SELECT 1 
-    FROM sa_us_orders.src_us_order src
-    WHERE COALESCE(src.ordernumber, '') = COALESCE(us.ordernumber, '')
-);
 
-SELECT * FROM sa_us_orders.src_us_order WHERE ordernumber = '40050060';
+--  Verify the Data Insertion
+
+SELECT distinct contactlastname  FROM sa_no_usa_orders.src_no_usa_order snuo  where customer_id ='29' and is_processed=false ;
 
 
 
@@ -441,22 +384,24 @@ BEGIN
     );
 
     -- Create CE_CUSTOMERS_SCD table
-    CREATE TABLE IF NOT EXISTS BL_3NF.CE_CUSTOMERS_SCD (
-        CUSTOMER_ID BIGINT PRIMARY KEY,
-        CUSTOMERNAME VARCHAR(100) NOT NULL,
-        CONTACTFIRSTNAME VARCHAR(100) NOT NULL,
-        CONTACTLASTNAME VARCHAR(100) NOT NULL,
-        PHONE VARCHAR(20) NOT NULL,
-        ADDRESS_ID BIGINT NOT NULL,
-        START_DT DATE NOT NULL,
-        END_DT DATE NOT NULL,
-        IS_ACTIVE VARCHAR(1) NOT NULL,
-        TA_INSERT_DT DATE NOT NULL,
-        CUSTOMER_SRC_ID VARCHAR(50) NOT NULL,
-        SOURCE_SYSTEM VARCHAR(100) NOT NULL,
-        SOURCE_ENTITY VARCHAR(100) NOT NULL,
-        FOREIGN KEY (ADDRESS_ID) REFERENCES BL_3NF.CE_ADDRESSES(ADDRESS_ID)
-    );
+CREATE TABLE IF NOT EXISTS BL_3NF.CE_CUSTOMERS_SCD (
+    CUSTOMER_ID BIGINT primary key,
+    CUSTOMERNAME VARCHAR(100) NOT NULL,
+    CONTACTFIRSTNAME VARCHAR(100) NOT NULL,
+    CONTACTLASTNAME VARCHAR(100) NOT NULL,
+    PHONE VARCHAR(20) NOT NULL,
+    ADDRESS_ID BIGINT NOT NULL,
+    START_DT DATE NOT NULL,
+    END_DT DATE NOT NULL,
+    IS_ACTIVE VARCHAR(1) NOT NULL,
+    TA_INSERT_DT DATE NOT NULL,
+    CUSTOMER_SRC_ID VARCHAR(50) NOT NULL,
+    SOURCE_SYSTEM VARCHAR(100) NOT NULL,
+    SOURCE_ENTITY VARCHAR(100) NOT NULL,
+    FOREIGN KEY (ADDRESS_ID) REFERENCES BL_3NF.CE_ADDRESSES(ADDRESS_ID)
+   
+);
+
 
     -- Create CE_ORDERS table
     CREATE TABLE IF NOT EXISTS BL_3NF.CE_ORDERS (
@@ -490,6 +435,9 @@ $$;
 
 -- Call the procedure to create the tables
 CALL public.create_bl_3nf_and_tables_procedure();
+
+
+select * from BL_3NF.CE_CUSTOMERS_SCD;
 
 
 -- creating sequences
@@ -607,9 +555,7 @@ BEGIN
     SELECT -1, -1, -1, -1, -1, -1, -1, '1900-01-01', '1900-01-01', '1900-01-01', 'n. a.', 'MANUAL', 'MANUAL'
     WHERE NOT EXISTS (SELECT 1 FROM BL_3NF.CE_ORDERS WHERE ORDERNUMBER = -1);
 
-    -- Commit the transaction
-    COMMIT;
-
+ 
     RAISE NOTICE 'Default rows inserted into BL_3NF tables';
 
 EXCEPTION
@@ -624,7 +570,7 @@ CALL BL_3NF.insert_default_rows_procedure();
 
 
 
--- Creating necessary schemas
+-- Creating bl_Cl
 CREATE SCHEMA IF NOT EXISTS BL_CL;
 
 
@@ -653,482 +599,421 @@ $$ LANGUAGE plpgsql;
 
 
 -- Creating procedure to load data into CE_DEALSIZES
-CREATE OR REPLACE PROCEDURE BL_3NF.load_dealsizes()
+CREATE OR REPLACE PROCEDURE BL_cl.load_dealsizes()
 LANGUAGE plpgsql AS $$
 DECLARE
     rows_affected INT := 0;
 BEGIN
-    BEGIN
-        INSERT INTO BL_3NF.CE_DEALSIZES (
-            DEALSIZE_ID, DEALSIZE, DEALSIZE_SRC_ID, TA_INSERT_DT, TA_UPDATE_DT, SOURCE_SYSTEM, SOURCE_ENTITY
-        )
-        SELECT DISTINCT
-            COALESCE(
-                (SELECT DEALSIZE_ID FROM BL_3NF.CE_DEALSIZES 
-                 WHERE SOURCE_SYSTEM = combined.source_system
-                   AND SOURCE_ENTITY = combined.source_entity
-                   AND DEALSIZE_SRC_ID = combined.dealsize_src_id
-                ),
-                nextval('BL_3NF.dealsize_id_seq')
-            ) AS DEALSIZE_ID,
-            combined.dealsize,
-            combined.dealsize AS dealsize_src_id,
-            CURRENT_DATE,
-            CURRENT_DATE,
-            combined.source_system,
-            combined.source_entity
-        FROM (
-            SELECT 
-                dealsize, 
-                'sa_us_orders' AS source_system, 
-                'src_us_order' AS source_entity,
-                dealsize AS dealsize_src_id
-            FROM sa_us_orders.src_us_order
-            UNION ALL
-            SELECT 
-                deal_size AS dealsize, 
-                'sa_no_usa_orders' AS source_system, 
-                'src_no_usa_order' AS source_entity,
-                deal_size AS dealsize_src_id
-            FROM sa_no_usa_orders.src_no_usa_order
-        ) AS combined
-        WHERE combined.dealsize IS NOT NULL 
-          AND NOT EXISTS (
-            SELECT 1 FROM BL_3NF.CE_DEALSIZES 
-            WHERE SOURCE_SYSTEM = combined.source_system
-              AND SOURCE_ENTITY = combined.source_entity
-              AND DEALSIZE_SRC_ID = combined.dealsize_src_id
-        );
+    -- Combining data from both sources and ensuring uniqueness
+    WITH combined_dealsizes AS (
+        SELECT 
+            deal_size AS DEALSIZE, 
+            deal_size AS DEALSIZE_SRC_ID,
+            'sa_no_usa_orders' AS SOURCE_SYSTEM,
+            'src_no_usa_order' AS SOURCE_ENTITY
+        FROM sa_no_usa_orders.src_no_usa_order
+        UNION 
+        SELECT 
+            dealsize AS DEALSIZE, 
+            dealsize AS DEALSIZE_SRC_ID,
+            'sa_us_orders' AS SOURCE_SYSTEM,
+            'src_us_order' AS SOURCE_ENTITY
+        FROM sa_us_orders.src_us_order
+    ),
+    unique_dealsizes AS (
+        SELECT 
+            DISTINCT ON (cd.DEALSIZE) cd.DEALSIZE, 
+            cd.DEALSIZE_SRC_ID, 
+            cd.SOURCE_SYSTEM, 
+            cd.SOURCE_ENTITY
+        FROM combined_dealsizes cd
+        ORDER BY cd.DEALSIZE 
+    )
+    INSERT INTO BL_3NF.CE_DEALSIZES (
+        DEALSIZE_ID, DEALSIZE, DEALSIZE_SRC_ID, TA_INSERT_DT, TA_UPDATE_DT, SOURCE_SYSTEM, SOURCE_ENTITY
+    )
+    SELECT
+        nextval('BL_3NF.dealsize_id_seq') AS DEALSIZE_ID,
+        ud.DEALSIZE,
+        ud.DEALSIZE_SRC_ID,
+        CURRENT_DATE AS TA_INSERT_DT,
+        CURRENT_DATE AS TA_UPDATE_DT,
+        ud.SOURCE_SYSTEM,
+        ud.SOURCE_ENTITY
+    FROM unique_dealsizes ud
+    WHERE NOT EXISTS (
+        SELECT 1 FROM BL_3NF.CE_DEALSIZES
+        WHERE DEALSIZE = ud.DEALSIZE
+    );
 
-        GET DIAGNOSTICS rows_affected = ROW_COUNT;
-        PERFORM BL_CL.log_procedure_action('load_dealsizes', rows_affected, 'Dealsizes loaded successfully');
-    EXCEPTION
-        WHEN unique_violation THEN
-            PERFORM BL_CL.log_procedure_action('load_dealsizes', 0, 'Unique constraint violation occurred');
-        WHEN OTHERS THEN
-            PERFORM BL_CL.log_procedure_action('load_dealsizes', 0, 'Error occurred during dealsizes load', SQLERRM);
-            RAISE;
-    END;
+    -- Capture rows affected by the insert
+    GET DIAGNOSTICS rows_affected = ROW_COUNT;
+    RAISE NOTICE 'Inserted % row(s) into CE_DEALSIZES', rows_affected;
+
+    -- Log the operation
+    PERFORM BL_CL.log_procedure_action('load_dealsizes', rows_affected, 'Dealsizes loaded successfully');
+
+EXCEPTION
+    WHEN OTHERS THEN
+        PERFORM BL_CL.log_procedure_action('load_dealsizes', 0, 'Error occurred during dealsizes load: ' || SQLERRM);
+        RAISE;
 END;
 $$;
+
+
+call BL_cl.load_dealsizes();
+select * from ce_dealsizes cd ;
+
 
 -- Creating procedure to load data into CE_PAYMENT_METHODS
-CREATE OR REPLACE PROCEDURE BL_3NF.load_payment_methods()
+CREATE OR REPLACE PROCEDURE BL_cl.load_payment_methods()
 LANGUAGE plpgsql AS $$
 DECLARE
     rows_affected INT := 0;
 BEGIN
-    BEGIN
-        INSERT INTO BL_3NF.CE_PAYMENT_METHODS (
-            PAYMENT_METHOD_ID, PAYMENT_METHOD, PAYMENT_SRC_ID, TA_INSERT_DT, TA_UPDATE_DT, SOURCE_SYSTEM, SOURCE_ENTITY
-        )
-        SELECT DISTINCT
-            COALESCE(
-                (SELECT PAYMENT_METHOD_ID FROM BL_3NF.CE_PAYMENT_METHODS 
-                 WHERE SOURCE_SYSTEM = combined.source_system
-                   AND SOURCE_ENTITY = combined.source_entity
-                   AND PAYMENT_SRC_ID = combined.payment_src_id
-                ),
-                nextval('BL_3NF.payment_method_id_seq')
-            ) AS PAYMENT_METHOD_ID,
-            combined.payment_method,
-            combined.payment_method AS payment_src_id,
-            CURRENT_DATE,
-            CURRENT_DATE,
-            combined.source_system,
-            combined.source_entity
-        FROM (
-            SELECT 
-                payment_method, 
-                'sa_us_orders' AS source_system, 
-                'src_us_order' AS source_entity,
-                payment_method AS payment_src_id
-            FROM sa_us_orders.src_us_order
-            UNION ALL
-            SELECT 
-                payment_method, 
-                'sa_no_usa_orders' AS source_system, 
-                'src_no_usa_order' AS source_entity,
-                payment_method AS payment_src_id
-            FROM sa_no_usa_orders.src_no_usa_order
-        ) AS combined
-        WHERE combined.payment_method IS NOT NULL  
-          AND NOT EXISTS (
-            SELECT 1 FROM BL_3NF.CE_PAYMENT_METHODS 
-            WHERE SOURCE_SYSTEM = combined.source_system
-              AND SOURCE_ENTITY = combined.source_entity
-              AND PAYMENT_SRC_ID = combined.payment_src_id
-        );
+    -- Combine and deduplicate payment methods from both sources
+    WITH combined_payment_methods AS (
+        SELECT 
+            payment_method, 
+            payment_method AS payment_src_id,
+            'sa_us_orders' AS source_system, 
+            'src_us_order' AS source_entity
+        FROM sa_us_orders.src_us_order
+        UNION
+        SELECT 
+            payment_method, 
+            payment_method AS payment_src_id,
+            'sa_no_usa_orders' AS source_system, 
+            'src_no_usa_order' AS source_entity
+        FROM sa_no_usa_orders.src_no_usa_order
+    ),
+    unique_payment_methods AS (
+        SELECT DISTINCT ON (payment_method)
+            payment_method,
+            payment_src_id,
+            source_system,
+            source_entity
+        FROM combined_payment_methods
+        WHERE payment_method IS NOT NULL
+        ORDER BY payment_method
+    )
+    INSERT INTO BL_3NF.CE_PAYMENT_METHODS (
+        PAYMENT_METHOD_ID, PAYMENT_METHOD, PAYMENT_SRC_ID, TA_INSERT_DT, TA_UPDATE_DT, SOURCE_SYSTEM, SOURCE_ENTITY
+    )
+    SELECT
+        nextval('BL_3NF.payment_method_id_seq') AS PAYMENT_METHOD_ID,
+        upm.payment_method,
+        upm.payment_src_id,
+        CURRENT_DATE,
+        CURRENT_DATE,
+        upm.source_system,
+        upm.source_entity
+    FROM unique_payment_methods upm
+    WHERE NOT EXISTS (
+        SELECT 1 FROM BL_3NF.CE_PAYMENT_METHODS 
+        WHERE PAYMENT_METHOD = upm.payment_method
+    );
 
-        GET DIAGNOSTICS rows_affected = ROW_COUNT;
-        PERFORM BL_CL.log_procedure_action('load_payment_methods', rows_affected, 'Payment methods loaded successfully');
-    EXCEPTION
-        WHEN unique_violation THEN
-            PERFORM BL_CL.log_procedure_action('load_payment_methods', 0, 'Unique constraint violation occurred');
-        WHEN OTHERS THEN
-            PERFORM BL_CL.log_procedure_action('load_payment_methods', 0, 'Error occurred during payment methods load', SQLERRM);
-            RAISE;
-    END;
+    -- Capture rows affected by the insert
+    GET DIAGNOSTICS rows_affected = ROW_COUNT;
+    PERFORM BL_CL.log_procedure_action('load_payment_methods', rows_affected, 'Payment methods loaded successfully');
+    
+EXCEPTION
+    WHEN unique_violation THEN
+        PERFORM BL_CL.log_procedure_action('load_payment_methods', 0, 'Unique constraint violation occurred');
+    WHEN OTHERS THEN
+        PERFORM BL_CL.log_procedure_action('load_payment_methods', 0, 'Error occurred during payment methods load: ' || SQLERRM);
+        RAISE;
 END;
 $$;
+
+
+call BL_cl.load_payment_methods();
+select * from BL_3NF.CE_PAYMENT_METHODS;
 
 
 
 
 
 -- Creating procedure to load data into CE_PRODUCTS
-CREATE OR REPLACE PROCEDURE BL_3NF.load_products()
+CREATE OR REPLACE PROCEDURE BL_cl.load_products()
 LANGUAGE plpgsql AS $$
 DECLARE
     rows_affected INT := 0;
 BEGIN
-    BEGIN
-        INSERT INTO BL_3NF.CE_PRODUCTS (
-            PRODUCT_ID, PRODUCTCODE, PRODUCTLINE, PRICEEACH, MSRP, PRODUCT_SRC_ID, TA_INSERT_DT, TA_UPDATE_DT, SOURCE_SYSTEM, SOURCE_ENTITY
-        )
-        SELECT DISTINCT
-            COALESCE(
-                (SELECT PRODUCT_ID FROM BL_3NF.CE_PRODUCTS 
-                 WHERE SOURCE_SYSTEM = combined.source_system
-                   AND SOURCE_ENTITY = combined.source_entity
-                   AND PRODUCT_SRC_ID = combined.product_src_id
-                ),
-                nextval('BL_3NF.product_id_seq')
-            ) AS PRODUCT_ID,
-            combined.productcode,
-            combined.productline,
-            combined.priceeach::NUMERIC,
-            combined.msrp::NUMERIC,
-            combined.productcode AS product_src_id,
-            CURRENT_DATE,
-            CURRENT_DATE,
-            combined.source_system,
-            combined.source_entity
-        FROM (
-            SELECT 
-                productcode, 
-                productline, 
-                priceeach::VARCHAR, 
-                msrp::VARCHAR, 
-                'sa_us_orders' AS source_system, 
-                'src_us_order' AS source_entity,
-                productcode AS product_src_id
-            FROM sa_us_orders.src_us_order
-            UNION ALL
-            SELECT 
-                product_model AS productcode, 
-                product_line AS productline, 
-                price_for_each AS priceeach, 
-                ms_rp AS msrp, 
-                'sa_no_usa_orders' AS source_system, 
-                'src_no_usa_order' AS source_entity,
-                product_model AS product_src_id
-            FROM sa_no_usa_orders.src_no_usa_order
-        ) AS combined
-        WHERE combined.productcode IS NOT NULL 
-          AND NOT EXISTS (
-            SELECT 1 FROM BL_3NF.CE_PRODUCTS 
-            WHERE SOURCE_SYSTEM = combined.source_system
-              AND SOURCE_ENTITY = combined.source_entity
-              AND PRODUCT_SRC_ID = combined.product_src_id
-        );
+    -- Combine and deduplicate product codes from both sources
+    WITH combined_products AS (
+        SELECT 
+            productcode, 
+            productline, 
+            priceeach::VARCHAR, 
+            msrp::VARCHAR, 
+            productcode AS product_src_id,
+            'sa_us_orders' AS source_system, 
+            'src_us_order' AS source_entity
+        FROM sa_us_orders.src_us_order
+        UNION
+        SELECT 
+            product_model AS productcode, 
+            product_line AS productline, 
+            price_for_each AS priceeach, 
+            ms_rp AS msrp, 
+            product_model AS product_src_id,
+            'sa_no_usa_orders' AS source_system, 
+            'src_no_usa_order' AS source_entity
+        FROM sa_no_usa_orders.src_no_usa_order
+    ),
+    unique_products AS (
+        SELECT DISTINCT ON (productcode)
+            productcode,
+            productline,
+            priceeach::NUMERIC,
+            msrp::NUMERIC,
+            product_src_id,
+            source_system,
+            source_entity
+        FROM combined_products
+        WHERE productcode IS NOT NULL
+        ORDER BY productcode
+    )
+    INSERT INTO BL_3NF.CE_PRODUCTS (
+        PRODUCT_ID, PRODUCTCODE, PRODUCTLINE, PRICEEACH, MSRP, PRODUCT_SRC_ID, TA_INSERT_DT, TA_UPDATE_DT, SOURCE_SYSTEM, SOURCE_ENTITY
+    )
+    SELECT
+        nextval('BL_3NF.product_id_seq') AS PRODUCT_ID,
+        up.productcode,
+        up.productline,
+        up.priceeach,
+        up.msrp,
+        up.product_src_id,
+        CURRENT_DATE,
+        CURRENT_DATE,
+        up.source_system,
+        up.source_entity
+    FROM unique_products up
+    WHERE NOT EXISTS (
+        SELECT 1 FROM BL_3NF.CE_PRODUCTS 
+        WHERE PRODUCTCODE = up.productcode
+    );
 
-        GET DIAGNOSTICS rows_affected = ROW_COUNT;
-        PERFORM BL_CL.log_procedure_action('load_products', rows_affected, 'Products loaded successfully');
-    EXCEPTION
-        WHEN unique_violation THEN
-            PERFORM BL_CL.log_procedure_action('load_products', 0, 'Unique constraint violation occurred');
-        WHEN OTHERS THEN
-            PERFORM BL_CL.log_procedure_action('load_products', 0, 'Error occurred during products load', SQLERRM);
-            RAISE;
-    END;
+    -- Capture rows affected by the insert
+    GET DIAGNOSTICS rows_affected = ROW_COUNT;
+    PERFORM BL_CL.log_procedure_action('load_products', rows_affected, 'Products loaded successfully');
+    
+EXCEPTION
+    WHEN unique_violation THEN
+        PERFORM BL_CL.log_procedure_action('load_products', 0, 'Unique constraint violation occurred');
+    WHEN OTHERS THEN
+        PERFORM BL_CL.log_procedure_action('load_products', 0, 'Error occurred during products load: ' || SQLERRM);
+        RAISE;
 END;
 $$;
+
+
+
+
+call BL_cl.load_products();
+select * from BL_3NF.CE_PRODUCTS;
+
+
+
+
 
 
 -- Creating procedure to load data into CE_COUNTRIES
-CREATE OR REPLACE PROCEDURE BL_3NF.load_countries()
+CREATE OR REPLACE PROCEDURE BL_cl.load_countries()
 LANGUAGE plpgsql AS $$
 DECLARE
     rows_affected INT := 0;
 BEGIN
-    BEGIN
-        INSERT INTO BL_3NF.CE_COUNTRIES (
-            COUNTRY_ID, COUNTRY_NAME, COUNTRY_SRC_ID, TA_INSERT_DT, TA_UPDATE_DT, SOURCE_SYSTEM, SOURCE_ENTITY
-        )
-        SELECT DISTINCT
-            nextval('BL_3NF.country_id_seq'),
+    -- Combine and deduplicate country names from both sources
+    WITH combined_countries AS (
+        SELECT 
+            COALESCE(country, 'n. a.') AS country_name, 
+            COALESCE(country, 'n. a.') AS country_src_id, 
+            'sa_us_orders' AS source_system, 
+            'src_us_order' AS source_entity
+        FROM sa_us_orders.src_us_order
+        UNION
+        SELECT 
+            COALESCE(country_name, 'n. a.') AS country_name, 
+            COALESCE(country_name, 'n. a.') AS country_src_id, 
+            'sa_no_usa_orders' AS source_system, 
+            'src_no_usa_order' AS source_entity
+        FROM sa_no_usa_orders.src_no_usa_order
+    ),
+    unique_countries AS (
+        SELECT DISTINCT ON (country_src_id)
             country_name,
             country_src_id,
-            CURRENT_DATE,
-            CURRENT_DATE,
             source_system,
             source_entity
-        FROM (
-            SELECT COALESCE(country, 'n. a.') AS country_name, COALESCE(country, 'n. a.') AS country_src_id, 'sa_us_orders' AS source_system, 'src_us_order' AS source_entity
-            FROM sa_us_orders.src_us_order
-            UNION ALL
-            SELECT COALESCE(country_name, 'n. a.') AS country_name, COALESCE(country_name, 'n. a.') AS country_src_id, 'sa_no_usa_orders' AS source_system, 'src_no_usa_order' AS source_entity
-            FROM sa_no_usa_orders.src_no_usa_order
-        ) AS combined
-        WHERE NOT EXISTS (
-            SELECT 1 FROM BL_3NF.CE_COUNTRIES 
-            WHERE COUNTRY_SRC_ID = combined.country_src_id
-              AND SOURCE_SYSTEM = combined.source_system
-              AND SOURCE_ENTITY = combined.source_entity
-        );
+        FROM combined_countries
+        ORDER BY country_src_id
+    )
+    INSERT INTO BL_3NF.CE_COUNTRIES (
+        COUNTRY_ID, COUNTRY_NAME, COUNTRY_SRC_ID, TA_INSERT_DT, TA_UPDATE_DT, SOURCE_SYSTEM, SOURCE_ENTITY
+    )
+    SELECT
+        nextval('BL_3NF.country_id_seq') AS COUNTRY_ID,
+        uc.country_name,
+        uc.country_src_id,
+        CURRENT_DATE,
+        CURRENT_DATE,
+        uc.source_system,
+        uc.source_entity
+    FROM unique_countries uc
+    WHERE NOT EXISTS (
+        SELECT 1 FROM BL_3NF.CE_COUNTRIES 
+        WHERE COUNTRY_SRC_ID = uc.country_src_id
+    );
 
-        GET DIAGNOSTICS rows_affected = ROW_COUNT;
-        PERFORM BL_CL.log_procedure_action('load_countries', rows_affected, 'Countries loaded successfully');
-    EXCEPTION
-        WHEN OTHERS THEN
-            PERFORM BL_CL.log_procedure_action('load_countries', 0, 'Error occurred during countries load', SQLERRM);
-            RAISE;
-    END;
+    -- Capture rows affected by the insert
+    GET DIAGNOSTICS rows_affected = ROW_COUNT;
+    PERFORM BL_CL.log_procedure_action('load_countries', rows_affected, 'Countries loaded successfully');
+    
+EXCEPTION
+    WHEN unique_violation THEN
+        PERFORM BL_CL.log_procedure_action('load_countries', 0, 'Unique constraint violation occurred');
+    WHEN OTHERS THEN
+        PERFORM BL_CL.log_procedure_action('load_countries', 0, 'Error occurred during countries load: ' || SQLERRM);
+        RAISE;
 END;
 $$;
+
+
+
+call BL_cl.load_countries();
+select * from BL_3NF.CE_COUNTRIES;
+delete from BL_3NF.CE_COUNTRIES;
 
 
 -- Creating procedure to load data into CE_STATES
-CREATE OR REPLACE PROCEDURE BL_3NF.load_states()
+
+CREATE OR REPLACE PROCEDURE BL_cl.load_states()
 LANGUAGE plpgsql AS $$
 DECLARE
     rows_affected INT := 0;
 BEGIN
-    BEGIN
-        INSERT INTO BL_3NF.CE_STATES (
-            STATE_ID, STATE_NAME, STATE_SRC_ID, COUNTRY_ID, TA_INSERT_DT, TA_UPDATE_DT, SOURCE_SYSTEM, SOURCE_ENTITY
-        )
+    -- Combine and deduplicate states from the single available source
+    WITH combined_states AS (
         SELECT DISTINCT
-            nextval('BL_3NF.state_id_seq'),
-            state_name,
-            state_src_id,
-            country_id,
-            CURRENT_DATE,
-            CURRENT_DATE,
-            source_system,
-            source_entity
-        FROM (
-            SELECT us.state AS state_name, COALESCE(us.state, 'n. a.') AS state_src_id, COALESCE(c.country_id, -1) AS country_id, 'sa_us_orders' AS source_system, 'src_us_order' AS source_entity
-            FROM sa_us_orders.src_us_order us
-            LEFT JOIN BL_3NF.CE_COUNTRIES c
-            ON us.country = c.COUNTRY_SRC_ID
-            AND c.source_system = 'sa_us_orders'
-            AND c.source_entity = 'src_us_order'
-        ) AS combined
-        WHERE NOT EXISTS (
-            SELECT 1 FROM BL_3NF.CE_STATES 
-            WHERE STATE_SRC_ID = combined.state_src_id
-              AND SOURCE_SYSTEM = combined.source_system
-              AND SOURCE_ENTITY = combined.source_entity
-        );
-
-        GET DIAGNOSTICS rows_affected = ROW_COUNT;
-        PERFORM BL_CL.log_procedure_action('load_states', rows_affected, 'States loaded successfully');
-    EXCEPTION
-        WHEN OTHERS THEN
-            PERFORM BL_CL.log_procedure_action('load_states', 0, 'Error occurred during states load', SQLERRM);
-            RAISE;
-    END;
-END;
-$$;
-
-
--- Creating procedure to load data into CE_CITIES
-CREATE OR REPLACE PROCEDURE BL_3NF.load_cities()
-LANGUAGE plpgsql AS $$
-DECLARE
-    rows_affected INT := 0;
-BEGIN
-    BEGIN
-        INSERT INTO BL_3NF.CE_CITIES (
-            CITY_ID, CITY_NAME, CITY_SRC_ID, STATE_ID, TA_INSERT_DT, TA_UPDATE_DT, SOURCE_SYSTEM, SOURCE_ENTITY
-        )
-        SELECT DISTINCT
-            nextval('BL_3NF.city_id_seq'),
-            city_name,
-            city_src_id,
-            state_id,
-            CURRENT_DATE,
-            CURRENT_DATE,
-            source_system,
-            source_entity
-        FROM (
-            SELECT us.city AS city_name, COALESCE(us.city, 'n. a.') AS city_src_id, COALESCE(s.state_id, -1) AS state_id, 'sa_us_orders' AS source_system, 'src_us_order' AS source_entity
-            FROM sa_us_orders.src_us_order us
-            LEFT JOIN BL_3NF.CE_STATES s 
-            ON us.state = s.STATE_SRC_ID
-            AND s.source_system = 'sa_us_orders'
-            AND s.source_entity = 'src_us_order'
-            UNION ALL
-            SELECT nous.city_name AS city_name, COALESCE(nous.city_name, 'n. a.') AS city_src_id, -1 AS state_id, 'sa_no_usa_orders' AS source_system, 'src_no_usa_order' AS source_entity
-            FROM sa_no_usa_orders.src_no_usa_order nous
-        ) AS combined
-        WHERE NOT EXISTS (
-            SELECT 1 FROM BL_3NF.CE_CITIES 
-            WHERE CITY_SRC_ID = combined.city_src_id
-              AND SOURCE_SYSTEM = combined.source_system
-              AND SOURCE_ENTITY = combined.source_entity
-        );
-
-        GET DIAGNOSTICS rows_affected = ROW_COUNT;
-        PERFORM BL_CL.log_procedure_action('load_cities', rows_affected, 'Cities loaded successfully');
-    EXCEPTION
-        WHEN OTHERS THEN
-            PERFORM BL_CL.log_procedure_action('load_cities', 0, 'Error occurred during cities load', SQLERRM);
-            RAISE;
-    END;
-END;
-$$;
-
-
--- Creating procedure to load data into CE_ADDRESSES
-CREATE OR REPLACE PROCEDURE BL_3NF.load_addresses()
-LANGUAGE plpgsql AS $$
-DECLARE
-    rows_affected INT := 0;
-BEGIN
-    BEGIN
-        INSERT INTO BL_3NF.CE_ADDRESSES (
-            ADDRESS_ID, ADDRESSLINE1, ADDRESS_SRC_ID, CITY_ID, TA_INSERT_DT, TA_UPDATE_DT, SOURCE_SYSTEM, SOURCE_ENTITY
-        )
-        SELECT DISTINCT
-            nextval('BL_3NF.address_id_seq'),
-            addressline1,
-            address_src_id,
-            city_id,
-            CURRENT_DATE,
-            CURRENT_DATE,
-            source_system,
-            source_entity
-        FROM (
-            SELECT COALESCE(us.addressline1, 'n. a.') AS addressline1, COALESCE(us.address_id::VARCHAR, 'n. a.') AS address_src_id, COALESCE(c.city_id, -1) AS city_id, 'sa_us_orders' AS source_system, 'src_us_order' AS source_entity
-            FROM sa_us_orders.src_us_order us
-            LEFT JOIN BL_3NF.CE_CITIES c 
-            ON us.city = c.CITY_SRC_ID
-            AND c.source_system = 'sa_us_orders'
-            AND c.source_entity = 'src_us_order'
-            UNION ALL
-            SELECT COALESCE(nous.address_line, 'n. a.') AS addressline1, COALESCE(nous.address_id_num::VARCHAR, 'n. a.') AS address_src_id, COALESCE(c.city_id, -1) AS city_id, 'sa_no_usa_orders' AS source_system, 'src_no_usa_order' AS source_entity
-            FROM sa_no_usa_orders.src_no_usa_order nous
-            LEFT JOIN BL_3NF.CE_CITIES c 
-            ON nous.city_name = c.CITY_SRC_ID
-            AND c.source_system = 'sa_no_usa_orders'
-            AND c.source_entity = 'src_no_usa_order'
-        ) AS combined
-        WHERE NOT EXISTS (
-            SELECT 1 FROM BL_3NF.CE_ADDRESSES 
-            WHERE ADDRESS_SRC_ID = combined.address_src_id
-              AND SOURCE_SYSTEM = combined.source_system
-              AND SOURCE_ENTITY = combined.source_entity
-        );
-
-        GET DIAGNOSTICS rows_affected = ROW_COUNT;
-        PERFORM BL_CL.log_procedure_action('load_addresses', rows_affected, 'Addresses loaded successfully');
-    EXCEPTION
-        WHEN OTHERS THEN
-            PERFORM BL_CL.log_procedure_action('load_addresses', 0, 'Error occurred during addresses load', SQLERRM);
-            RAISE;
-    END;
-END;
-$$;
-
--- customersss------------------------------------------
-
-
-CREATE OR REPLACE PROCEDURE BL_3NF.load_customers()
-LANGUAGE plpgsql AS $$
-DECLARE
-    rows_affected INT := 0;
-BEGIN
-    -- Mark existing records as inactive (End Date and Is Active)
-    UPDATE BL_3NF.CE_CUSTOMERS_SCD c
-    SET END_DT = CURRENT_DATE - INTERVAL '1 day', IS_ACTIVE = 'N'
-    WHERE EXISTS (
-        SELECT 1
-        FROM (
-            SELECT COALESCE(us.customer_id::VARCHAR, 'n. a.') AS CUSTOMER_SRC_ID, 'sa_us_orders' AS source_system, 'src_us_order' AS source_entity FROM sa_us_orders.src_us_order us
-            UNION ALL
-            SELECT COALESCE(nous.customers_id::VARCHAR, 'n. a.') AS CUSTOMER_SRC_ID, 'sa_no_usa_orders' AS source_system, 'src_no_usa_order' AS source_entity FROM sa_no_usa_orders.src_no_usa_order nous
-        ) AS combined
-        WHERE combined.CUSTOMER_SRC_ID = c.CUSTOMER_SRC_ID
-          AND combined.source_system = c.source_system
-          AND combined.source_entity = c.source_entity
-          AND c.IS_ACTIVE = 'Y'
+            us.state AS STATE_NAME,
+            COALESCE(us.state, 'n. a.') AS STATE_SRC_ID,
+            COALESCE(c.country_id, -1) AS COUNTRY_ID,
+            'sa_us_orders' AS SOURCE_SYSTEM,
+            'src_us_order' AS SOURCE_ENTITY
+        FROM sa_us_orders.src_us_order us
+        LEFT JOIN BL_3NF.CE_COUNTRIES c
+        ON us.country = c.country_src_id
+        AND c.source_system = 'sa_us_orders'
+        AND c.source_entity = 'src_us_order'
+    )
+    INSERT INTO BL_3NF.CE_STATES (
+        STATE_ID, STATE_NAME, STATE_SRC_ID, COUNTRY_ID, TA_INSERT_DT, TA_UPDATE_DT, SOURCE_SYSTEM, SOURCE_ENTITY
+    )
+    SELECT
+        nextval('BL_3NF.state_id_seq') AS STATE_ID,
+        s.STATE_NAME,
+        s.STATE_SRC_ID,
+        s.COUNTRY_ID,
+        CURRENT_DATE AS TA_INSERT_DT,
+        CURRENT_DATE AS TA_UPDATE_DT,
+        s.SOURCE_SYSTEM,
+        s.SOURCE_ENTITY
+    FROM combined_states s
+    WHERE NOT EXISTS (
+        SELECT 1 FROM BL_3NF.CE_STATES
+        WHERE STATE_NAME = s.STATE_NAME
+          AND SOURCE_SYSTEM = s.SOURCE_SYSTEM
+          AND SOURCE_ENTITY = s.SOURCE_ENTITY
     );
 
-    --  Insert new records while retaining the same CUSTOMER_ID
-    INSERT INTO BL_3NF.CE_CUSTOMERS_SCD (
-        CUSTOMER_ID, CUSTOMERNAME, CONTACTFIRSTNAME, CONTACTLASTNAME, PHONE, CUSTOMER_SRC_ID, ADDRESS_ID, START_DT, END_DT, IS_ACTIVE, TA_INSERT_DT, SOURCE_SYSTEM, SOURCE_ENTITY
-    )
-    SELECT DISTINCT
-        COALESCE(
-            (SELECT CUSTOMER_ID FROM BL_3NF.CE_CUSTOMERS_SCD c
-             WHERE c.CUSTOMER_SRC_ID = combined.customer_src_id
-               AND c.source_system = combined.source_system
-               AND c.source_entity = combined.source_entity
-               AND c.IS_ACTIVE = 'Y'),
-            nextval('BL_3NF.customer_id_seq')
-        ) AS CUSTOMER_ID,
-        combined.customername,
-        combined.contactfirstname,
-        combined.contactlastname,
-        combined.phone,
-        combined.customer_src_id,
-        combined.address_id,
-        CURRENT_DATE,
-        DATE '9999-12-31',
-        'Y',
-        CURRENT_DATE,
-        combined.source_system,
-        combined.source_entity
-    FROM (
+    -- Capture rows affected by the insert
+    GET DIAGNOSTICS rows_affected = ROW_COUNT;
+    RAISE NOTICE 'Inserted % row(s) into CE_STATES', rows_affected;
+
+    -- Log the operation
+    PERFORM BL_CL.log_procedure_action('load_states', rows_affected, 'States loaded successfully');
+    
+EXCEPTION
+    WHEN OTHERS THEN
+        PERFORM BL_CL.log_procedure_action('load_states', 0, 'Error occurred during states load: ' || SQLERRM);
+        RAISE;
+END;
+$$;
+
+
+call BL_cl.load_states();
+select * from BL_3NF.CE_STATES;
+delete from BL_3NF.CE_STATES;
+-- Creating procedure to load data into CE_CITIES
+CREATE OR REPLACE PROCEDURE BL_cl.load_cities()
+LANGUAGE plpgsql AS $$
+DECLARE
+    rows_affected INT := 0;
+BEGIN
+    -- Combine and deduplicate cities from both sources
+    WITH combined_cities AS (
         SELECT 
-            COALESCE(us.customername, 'n. a.') AS customername, 
-            COALESCE(us.contactfirstname, 'n. a.') AS contactfirstname, 
-            COALESCE(us.contactlastname, 'n. a.') AS contactlastname, 
-            COALESCE(us.phone, 'n. a.') AS phone, 
-            COALESCE(us.customer_id::VARCHAR, 'n. a.') AS customer_src_id, 
-            COALESCE(a.address_id, -1) AS address_id, 
+            COALESCE(LOWER(TRIM(us.city)), 'n. a.') AS city_name, 
+            COALESCE(LOWER(TRIM(us.city)), 'n. a.') AS city_src_id, 
+            COALESCE(s.state_id, -1) AS state_id, 
             'sa_us_orders' AS source_system, 
             'src_us_order' AS source_entity
         FROM sa_us_orders.src_us_order us
-        LEFT JOIN BL_3NF.CE_ADDRESSES a 
-        ON us.addressline1 = a.addressline1
-        AND a.source_system = 'sa_us_orders'
-        AND a.source_entity = 'src_us_order'
-        UNION ALL
+        LEFT JOIN BL_3NF.CE_STATES s 
+        ON LOWER(TRIM(us.state)) = LOWER(TRIM(s.STATE_SRC_ID))
+        AND s.source_system = 'sa_us_orders'
+        AND s.source_entity = 'src_us_order'
+        
+        UNION
+        
         SELECT 
-            COALESCE(nous.cust_name, 'n. a.') AS customername, 
-            COALESCE(nous.cust_firstname, 'n. a.') AS contactfirstname, 
-            COALESCE(nous.cust_lastname, 'n. a.') AS contactlastname, 
-            COALESCE(nous.phone_number, 'n. a.') AS phone, 
-            COALESCE(nous.customers_id::VARCHAR, 'n. a.') AS customer_src_id, 
-            COALESCE(a.address_id, -1) AS address_id, 
+            COALESCE(LOWER(TRIM(nous.city_name)), 'n. a.') AS city_name, 
+            COALESCE(LOWER(TRIM(nous.city_name)), 'n. a.') AS city_src_id, 
+            -1 AS state_id, 
             'sa_no_usa_orders' AS source_system, 
             'src_no_usa_order' AS source_entity
         FROM sa_no_usa_orders.src_no_usa_order nous
-        LEFT JOIN BL_3NF.CE_ADDRESSES a 
-        ON nous.address_line = a.addressline1
-        AND a.source_system = 'sa_no_usa_orders'
-        AND a.source_entity = 'src_no_usa_order'
-    ) AS combined
-    LEFT JOIN BL_3NF.CE_CUSTOMERS_SCD c 
-    ON combined.customer_src_id = c.CUSTOMER_SRC_ID
-    AND combined.source_system = c.source_system
-    AND combined.source_entity = c.source_entity
-    WHERE c.customer_id IS NULL
-    OR c.IS_ACTIVE = 'N';
+    ),
+    unique_cities AS (
+        SELECT DISTINCT ON (city_src_id)
+            city_name,
+            city_src_id,
+            state_id,
+            source_system,
+            source_entity
+        FROM combined_cities
+        ORDER BY city_src_id
+    )
+    INSERT INTO BL_3NF.CE_CITIES (
+        CITY_ID, CITY_NAME, CITY_SRC_ID, STATE_ID, TA_INSERT_DT, TA_UPDATE_DT, SOURCE_SYSTEM, SOURCE_ENTITY
+    )
+    SELECT
+        nextval('BL_3NF.city_id_seq'),
+        uc.city_name,
+        uc.city_src_id,
+        uc.state_id,
+        CURRENT_DATE,
+        CURRENT_DATE,
+        uc.source_system,
+        uc.source_entity
+    FROM unique_cities uc
+    WHERE NOT EXISTS (
+        SELECT 1 FROM BL_3NF.CE_CITIES 
+        WHERE LOWER(TRIM(CITY_SRC_ID)) = uc.city_src_id
+          AND LOWER(TRIM(SOURCE_SYSTEM)) = uc.source_system
+          AND LOWER(TRIM(SOURCE_ENTITY)) = uc.source_entity
+    );
 
+    -- Capture rows affected by the insert
     GET DIAGNOSTICS rows_affected = ROW_COUNT;
-    PERFORM BL_CL.log_procedure_action('load_customers', rows_affected, 'Customers loaded successfully with SCD Type 2');
+    PERFORM BL_CL.log_procedure_action('load_cities', rows_affected, 'Cities loaded successfully');
+    
 EXCEPTION
-    WHEN unique_violation THEN
-        -- Handle specific unique_violation
-        PERFORM BL_CL.log_procedure_action('load_customers', 0, 'Unique constraint violation occurred');
-        -- Implement retry logic or additional handling if needed
     WHEN OTHERS THEN
-        PERFORM BL_CL.log_procedure_action('load_customers', 0, 'Error occurred during customers load', SQLERRM);
+        PERFORM BL_CL.log_procedure_action('load_cities', 0, 'Error occurred during cities load: ' || SQLERRM);
         RAISE;
 END;
 $$;
@@ -1137,169 +1022,334 @@ $$;
 
 
 
--- Creating procedure to load data into CE_ORDERS with full incremental logic
-CREATE OR REPLACE PROCEDURE BL_3NF.load_orders()
+
+call BL_cl.load_cities();
+select * from BL_3NF.CE_CITIES;
+delete from BL_3NF.CE_CITIES ;
+
+-- Creating procedure to load data into CE_ADDRESSES
+CREATE OR REPLACE PROCEDURE BL_cl.load_addresses()
 LANGUAGE plpgsql AS $$
 DECLARE
     rows_affected INT := 0;
 BEGIN
-    -- Insert new records and update existing ones based on ta_insert_dt or ta_update_dt
-    BEGIN
-        -- Insert new records
-        INSERT INTO BL_3NF.CE_ORDERS (
-            ORDERNUMBER, QUANTITYORDERED, SALES, PAYMENT_METHOD_ID, DEALSIZE_ID, PRODUCT_ID, CUSTOMER_ID, EVENT_DT, TA_INSERT_DT, TA_UPDATE_DT, ORDER_SRC_ID, SOURCE_SYSTEM, SOURCE_ENTITY
-        )
-        SELECT DISTINCT
-            COALESCE(
-                (SELECT ORDERNUMBER FROM BL_3NF.CE_ORDERS 
-                 WHERE ORDER_SRC_ID = us.ordernumber::VARCHAR
-                   AND SOURCE_SYSTEM = 'sa_us_orders'
-                   AND SOURCE_ENTITY = 'src_us_order'),
-                nextval('BL_3NF.ordernumber_seq')
-            ) AS ordernumber,
-            us.quantityordered::INTEGER AS quantityordered,
-            us.sales::NUMERIC AS sales,
-            pm.PAYMENT_METHOD_ID AS payment_method_id,
-            ds.DEALSIZE_ID AS dealsize_id,
-            p.PRODUCT_ID AS product_id,
-            c.CUSTOMER_ID AS customer_id,
-            us.orderdate::DATE AS event_dt,
-            us.ta_insert_dt,
-            CURRENT_TIMESTAMP AS ta_update_dt,
-            us.ordernumber::VARCHAR AS order_src_id,
-            'sa_us_orders' AS source_system,
+    -- Combine and deduplicate addresses from both sources
+    WITH combined_addresses AS (
+        SELECT 
+            COALESCE(us.addressline1, 'n. a.') AS addressline1, 
+            COALESCE(us.address_id::VARCHAR, 'n. a.') AS address_src_id, 
+            c.city_id AS city_id, 
+            'sa_us_orders' AS source_system, 
             'src_us_order' AS source_entity
         FROM sa_us_orders.src_us_order us
-        LEFT JOIN BL_3NF.CE_PAYMENT_METHODS pm 
-        ON us.payment_method = pm.PAYMENT_METHOD
-        AND pm.payment_src_id = us.payment_method
-        AND pm.source_system = 'sa_us_orders'
-        AND pm.source_entity = 'src_us_order'
-        LEFT JOIN BL_3NF.CE_DEALSIZES ds 
-        ON us.dealsize = ds.DEALSIZE
-        AND ds.dealsize_src_id = us.dealsize
-        AND ds.source_system = 'sa_us_orders'
-        AND ds.source_entity = 'src_us_order'
-        LEFT JOIN BL_3NF.CE_PRODUCTS p 
-        ON us.productcode = p.PRODUCTCODE
-        AND p.product_src_id = us.productcode
-        AND p.source_system = 'sa_us_orders'
-        AND p.source_entity = 'src_us_order'
-        LEFT JOIN BL_3NF.CE_CUSTOMERS_SCD c 
-        ON us.customer_id::BIGINT = c.CUSTOMER_ID
-        AND c.customer_src_id = us.customer_id::VARCHAR
+        LEFT JOIN BL_3NF.CE_CITIES c 
+        ON LOWER(TRIM(us.city)) = LOWER(TRIM(c.CITY_SRC_ID))
         AND c.source_system = 'sa_us_orders'
         AND c.source_entity = 'src_us_order'
-        WHERE us.ta_insert_dt >= (SELECT COALESCE(MAX(ta_insert_dt), '1900-01-01'::timestamp) FROM BL_3NF.CE_ORDERS)
-        AND NOT EXISTS (
-            SELECT 1 FROM BL_3NF.CE_ORDERS o 
-            WHERE o.ORDER_SRC_ID = us.ordernumber::VARCHAR
-              AND o.SOURCE_SYSTEM = 'sa_us_orders'
-              AND o.SOURCE_ENTITY = 'src_us_order'
-        )
-        UNION ALL
-        SELECT DISTINCT
-            COALESCE(
-                (SELECT ORDERNUMBER FROM BL_3NF.CE_ORDERS 
-                 WHERE ORDER_SRC_ID = nous.order_id::VARCHAR
-                   AND SOURCE_SYSTEM = 'sa_no_usa_orders'
-                   AND SOURCE_ENTITY = 'src_no_usa_order'),
-                nextval('BL_3NF.ordernumber_seq')
-            ) AS ordernumber,
-            nous.quantity::INTEGER AS quantityordered,
-            nous.sales_amount::NUMERIC AS sales,
-            pm.PAYMENT_METHOD_ID AS payment_method_id,
-            ds.DEALSIZE_ID AS dealsize_id,
-            p.PRODUCT_ID AS product_id,
-            c.CUSTOMER_ID AS customer_id,
-            nous.date_of_order::DATE AS event_dt,
-            nous.ta_insert_dt,
-            CURRENT_TIMESTAMP AS ta_update_dt,
-            nous.order_id::VARCHAR AS order_src_id,
-            'sa_no_usa_orders' AS source_system,
+        
+        UNION
+        
+        SELECT 
+            COALESCE(nous.address_line, 'n. a.') AS addressline1, 
+            COALESCE(nous.address_id_num::VARCHAR, 'n. a.') AS address_src_id, 
+            c.city_id AS city_id, 
+            'sa_no_usa_orders' AS source_system, 
             'src_no_usa_order' AS source_entity
         FROM sa_no_usa_orders.src_no_usa_order nous
-        LEFT JOIN BL_3NF.CE_PAYMENT_METHODS pm 
-        ON nous.payment_method = pm.PAYMENT_METHOD
-        AND pm.payment_src_id = nous.payment_method
-        AND pm.source_system = 'sa_no_usa_orders'
-        AND pm.source_entity = 'src_no_usa_order'
-        LEFT JOIN BL_3NF.CE_DEALSIZES ds 
-        ON nous.deal_size = ds.DEALSIZE
-        AND ds.dealsize_src_id = nous.deal_size
-        AND ds.source_system = 'sa_no_usa_orders'
-        AND ds.source_entity = 'src_no_usa_order'
-        LEFT JOIN BL_3NF.CE_PRODUCTS p 
-        ON nous.product_model = p.PRODUCTCODE
-        AND p.product_src_id = nous.product_model
-        AND p.source_system = 'sa_no_usa_orders'
-        AND p.source_entity = 'src_no_usa_order'
-        LEFT JOIN BL_3NF.CE_CUSTOMERS_SCD c 
-        ON nous.customers_id::BIGINT = c.CUSTOMER_ID
-        AND c.customer_src_id = nous.customers_id::VARCHAR
+        LEFT JOIN BL_3NF.CE_CITIES c 
+        ON LOWER(TRIM(nous.city_name)) = LOWER(TRIM(c.CITY_SRC_ID))
         AND c.source_system = 'sa_no_usa_orders'
         AND c.source_entity = 'src_no_usa_order'
-        WHERE nous.ta_insert_dt >= (SELECT COALESCE(MAX(ta_insert_dt), '1900-01-01'::timestamp) FROM BL_3NF.CE_ORDERS)
-        AND NOT EXISTS (
-            SELECT 1 FROM BL_3NF.CE_ORDERS o 
-            WHERE o.ORDER_SRC_ID = nous.order_id::VARCHAR
-              AND o.SOURCE_SYSTEM = 'sa_no_usa_orders'
-              AND o.SOURCE_ENTITY = 'src_no_usa_order'
-        );
+    ),
+    unique_addresses AS (
+        SELECT DISTINCT ON (addressline1, address_src_id, city_id)
+            addressline1,
+            address_src_id,
+            COALESCE(city_id, -1) AS city_id,  -- Keeping -1 if city is still not matched
+            source_system,
+            source_entity
+        FROM combined_addresses
+        WHERE addressline1 IS NOT NULL
+        ORDER BY addressline1, address_src_id, city_id
+    )
+    INSERT INTO BL_3NF.CE_ADDRESSES (
+        ADDRESS_ID, ADDRESSLINE1, ADDRESS_SRC_ID, CITY_ID, TA_INSERT_DT, TA_UPDATE_DT, SOURCE_SYSTEM, SOURCE_ENTITY
+    )
+    SELECT
+        nextval('BL_3NF.address_id_seq'),
+        ua.addressline1,
+        ua.address_src_id,
+        ua.city_id,
+        CURRENT_DATE,
+        CURRENT_DATE,
+        ua.source_system,
+        ua.source_entity
+    FROM unique_addresses ua
+    WHERE NOT EXISTS (
+        SELECT 1 FROM BL_3NF.CE_ADDRESSES 
+        WHERE ADDRESS_SRC_ID = ua.address_src_id
+          AND SOURCE_SYSTEM = ua.source_system
+          AND SOURCE_ENTITY = ua.source_entity
+    );
 
-        -- Update existing records
-        UPDATE BL_3NF.CE_ORDERS o
-        SET 
-            QUANTITYORDERED = src.quantityordered::INTEGER,
-            SALES = src.sales::NUMERIC,
-            PAYMENT_METHOD_ID = pm.PAYMENT_METHOD_ID,
-            DEALSIZE_ID = ds.DEALSIZE_ID,
-            PRODUCT_ID = p.PRODUCT_ID,
-            CUSTOMER_ID = c.CUSTOMER_ID,
-            EVENT_DT = src.event_dt::DATE,
-            TA_UPDATE_DT = CURRENT_TIMESTAMP
-        FROM (
-            SELECT us.* 
-            FROM sa_us_orders.src_us_order us
-            WHERE us.ta_update_dt >= (SELECT COALESCE(MAX(ta_update_dt), '1900-01-01'::timestamp) FROM BL_3NF.CE_ORDERS)
-            UNION ALL
-            SELECT nous.*
-            FROM sa_no_usa_orders.src_no_usa_order nous
-            WHERE nous.ta_update_dt >= (SELECT COALESCE(MAX(ta_update_dt), '1900-01-01'::timestamp) FROM BL_3NF.CE_ORDERS)
-        ) src
-        LEFT JOIN BL_3NF.CE_PAYMENT_METHODS pm 
-        ON src.payment_method = pm.PAYMENT_METHOD
-        AND pm.payment_src_id = src.payment_method
-        AND pm.source_system = src.source_system
-        AND pm.source_entity = src.source_entity
-        LEFT JOIN BL_3NF.CE_DEALSIZES ds 
-        ON src.dealsize = ds.DEALSIZE
-        AND ds.dealsize_src_id = src.dealsize
-        AND ds.source_system = src.source_system
-        AND ds.source_entity = src.source_entity
-        LEFT JOIN BL_3NF.CE_PRODUCTS p 
-        ON src.productcode = p.PRODUCTCODE
-        AND p.product_src_id = src.productcode
-        AND p.source_system = src.source_system
-        AND p.source_entity = src.source_entity
-        LEFT JOIN BL_3NF.CE_CUSTOMERS_SCD c 
-        ON src.customer_id::BIGINT = c.CUSTOMER_ID
-        AND c.customer_src_id = src.customer_id::VARCHAR
-        AND c.source_system = src.source_system
-        AND c.source_entity = src.source_entity
-        WHERE o.ORDER_SRC_ID = src.ordernumber::VARCHAR
-        AND o.SOURCE_SYSTEM = src.source_system
-        AND o.SOURCE_ENTITY = src.source_entity;
+    -- Capture rows affected by the insert
+    GET DIAGNOSTICS rows_affected = ROW_COUNT;
+    PERFORM BL_CL.log_procedure_action('load_addresses', rows_affected, 'Addresses loaded successfully');
+EXCEPTION
+    WHEN OTHERS THEN
+        PERFORM BL_CL.log_procedure_action('load_addresses', 0, 'Error occurred during addresses load: ' || SQLERRM);
+        RAISE;
+END;
+$$;
 
-        GET DIAGNOSTICS rows_affected = ROW_COUNT;
-        PERFORM BL_CL.log_procedure_action('load_orders', rows_affected, 'Orders loaded successfully');
-    EXCEPTION
-        WHEN unique_violation THEN
-            PERFORM BL_CL.log_procedure_action('load_orders', 0, 'Duplicate order number found and skipped');
-        WHEN OTHERS THEN
-            PERFORM BL_CL.log_procedure_action('load_orders', 0, 'Error occurred during orders load', SQLERRM);
-            RAISE;
-    END;
+
+
+CALL BL_cl.load_addresses();
+select *  from bl_3nf.ce_addresses ca ;
+
+
+-- customersss------------------------------------------
+
+CREATE OR REPLACE PROCEDURE BL_cl.load_customers()
+LANGUAGE plpgsql AS $$
+DECLARE
+    max_receive_date_us timestamp;
+    max_receive_date_no_us timestamp;
+    rows_affected INT := 0;
+BEGIN
+    -- Step 1: Get the max receive_date for each source beforehand
+    SELECT COALESCE(MAX(receive_date), '1900-01-01'::timestamp) 
+    INTO max_receive_date_us
+    FROM sa_us_orders.src_us_order;
+
+    SELECT COALESCE(MAX(receive_date), '1900-01-01'::timestamp) 
+    INTO max_receive_date_no_us
+    FROM sa_no_usa_orders.src_no_usa_order;
+
+    -- Step 2: Update existing records that have changed
+    UPDATE BL_3NF.CE_CUSTOMERS_SCD t
+    SET END_DT = CURRENT_DATE,
+        IS_ACTIVE = 'N'
+    WHERE t.IS_ACTIVE = 'Y'
+      AND EXISTS (
+        SELECT 1
+        FROM sa_us_orders.src_us_order us
+        WHERE  us.is_processed = false
+          AND us.customer_id::VARCHAR = t.CUSTOMER_SRC_ID
+          AND ('sa_us_orders', 'src_us_order') = (t.source_system, t.source_entity)
+        UNION ALL
+        SELECT 1
+        FROM sa_no_usa_orders.src_no_usa_order nous
+        WHERE nous.receive_date >= max_receive_date_no_us
+          AND nous.is_processed = false
+          AND nous.customers_id::VARCHAR = t.CUSTOMER_SRC_ID
+          AND ('sa_no_usa_orders', 'src_no_usa_order') = (t.source_system, t.source_entity)
+    );
+    
+    -- Capture rows affected by the update
+    GET DIAGNOSTICS rows_affected = ROW_COUNT;
+    RAISE NOTICE 'Updated % row(s)', rows_affected;
+
+    -- Step 3: Insert new records if they don't already exist
+    INSERT INTO BL_3NF.CE_CUSTOMERS_SCD (
+        CUSTOMER_ID, CUSTOMERNAME, CONTACTFIRSTNAME, CONTACTLASTNAME, PHONE, 
+        CUSTOMER_SRC_ID, ADDRESS_ID, START_DT, END_DT, IS_ACTIVE, 
+        TA_INSERT_DT, SOURCE_SYSTEM, SOURCE_ENTITY
+    )
+    SELECT nextval('BL_3NF.customer_id_seq') AS CUSTOMER_ID,
+    		us.customername,
+           us.contactfirstname,
+           us.contactlastname,
+           us.phone,
+           us.customer_id::VARCHAR AS customer_src_id,
+           a.address_id AS address_id, 
+           CURRENT_DATE AS START_DT,
+           DATE '9999-12-31' AS END_DT,
+           'Y' AS IS_ACTIVE,
+           CURRENT_DATE AS TA_INSERT_DT,
+           'sa_us_orders' AS source_system,
+           'src_us_order' AS source_entity
+    FROM sa_us_orders.src_us_order us
+    left join bl_3nf.ce_addresses a on us.address_id=a.address_src_id 
+    and a.source_system = 'sa_us_orders'
+    AND a.source_entity = 'src_us_order'    
+   WHERE  us.is_processed = false
+      group by us.customername,  us.contactfirstname, us.contactlastname, a.address_id,  us.phone, us.customer_id
+           UNION ALL
+    SELECt nextval('BL_3NF.customer_id_seq') AS CUSTOMER_ID,
+    		nous.cust_name,
+           nous.cust_firstname,
+           nous.cust_lastname,
+           nous.phone_number AS phone,
+           nous.customers_id::VARCHAR AS customer_src_id,
+           ad.address_id AS address_id,
+           CURRENT_DATE AS START_DT,
+           DATE '9999-12-31' AS END_DT,
+           'Y' AS IS_ACTIVE,
+           CURRENT_DATE AS TA_INSERT_DT,
+           'sa_no_usa_orders' AS source_system,
+           'src_no_usa_order' AS source_entity
+    FROM sa_no_usa_orders.src_no_usa_order nous
+    left join bl_3nf.ce_addresses ad on nous.address_id_num=ad.address_src_id 
+    and ad.source_system = 'sa_no_usa_orders'
+    AND ad.source_entity = 'src_no_usa_order'
+    WHERE  nous.is_processed = false    
+    group by nous.cust_name, nous.cust_firstname, nous.cust_lastname, nous.phone_number, nous.customers_id, ad.address_id ;
+      
+        
+		   
+      
+    -- Capture rows affected by the insert
+    GET DIAGNOSTICS rows_affected = ROW_COUNT;
+    RAISE NOTICE 'Inserted % row(s)', rows_affected;
+
+    
+    
+    --  Log the operation
+    PERFORM BL_CL.log_procedure_action('load_customers', rows_affected, 'Customers loaded successfully with SCD Type 2');
+
+EXCEPTION
+    WHEN OTHERS THEN
+        PERFORM BL_CL.log_procedure_action('load_customers', 0, 'Error occurred during customers load: ' || SQLERRM);
+        RAISE;
+END;
+$$;
+
+CALL BL_cl.load_customers();
+select * from bl_3nf.ce_customers_scd ;
+
+
+
+-- Creating procedure to load data into CE_ORDERS with full incremental logic
+CREATE OR REPLACE PROCEDURE BL_cl.load_orders()
+LANGUAGE plpgsql AS $$
+DECLARE
+    rows_affected INT := 0;
+BEGIN
+
+    -- Insert new records
+    INSERT INTO BL_3NF.CE_ORDERS (
+        ORDERNUMBER, QUANTITYORDERED, SALES, PAYMENT_METHOD_ID, DEALSIZE_ID, PRODUCT_ID, CUSTOMER_ID, EVENT_DT, TA_INSERT_DT, TA_UPDATE_DT, ORDER_SRC_ID, SOURCE_SYSTEM, SOURCE_ENTITY
+    )
+    SELECT DISTINCT
+        COALESCE(
+            (SELECT ORDERNUMBER FROM BL_3NF.CE_ORDERS 
+             WHERE ORDER_SRC_ID = us.ordernumber::VARCHAR
+               AND SOURCE_SYSTEM = 'sa_us_orders'
+               AND SOURCE_ENTITY = 'src_us_order'),
+            nextval('BL_3NF.ordernumber_seq')
+        ) AS ordernumber,
+        us.quantityordered::INTEGER AS quantityordered,
+        us.sales::NUMERIC AS sales,
+        pm.PAYMENT_METHOD_ID AS payment_method_id,
+        ds.DEALSIZE_ID AS dealsize_id,
+        p.PRODUCT_ID AS product_id,
+        c.CUSTOMER_ID AS customer_id,
+        us.orderdate::DATE AS event_dt,
+        CURRENT_DATE AS ta_insert_dt,
+        CURRENT_TIMESTAMP AS ta_update_dt,
+        us.ordernumber::VARCHAR AS order_src_id,
+        'sa_us_orders' AS source_system,
+        'src_us_order' AS source_entity
+    FROM sa_us_orders.src_us_order us
+    LEFT JOIN BL_3NF.CE_PAYMENT_METHODS pm 
+    ON  pm.payment_src_id = us.payment_method
+    AND pm.source_system = 'sa_us_orders'
+    AND pm.source_entity = 'src_us_order'
+    LEFT JOIN BL_3NF.CE_DEALSIZES ds 
+    ON  ds.dealsize_src_id = us.dealsize
+    AND ds.source_system = 'sa_us_orders'
+    AND ds.source_entity = 'src_us_order'
+    LEFT JOIN BL_3NF.CE_PRODUCTS p 
+    ON  p.product_src_id = us.productcode
+    AND p.source_system = 'sa_us_orders'
+    AND p.source_entity = 'src_us_order'
+    LEFT JOIN BL_3NF.CE_CUSTOMERS_SCD c 
+    ON  c.customer_src_id = us.customer_id::VARCHAR
+    AND c.source_system = 'sa_us_orders'
+    AND c.source_entity = 'src_us_order'
+    WHERE us.is_processed =  false -- incremental logic here , where is_processed is true, it wont insert again 
+    and NOT EXISTS (
+        SELECT 1 FROM BL_3NF.CE_ORDERS o 
+        WHERE o.ORDER_SRC_ID = us.ordernumber::VARCHAR
+          AND o.SOURCE_SYSTEM = 'sa_us_orders'
+          AND o.SOURCE_ENTITY = 'src_us_order'
+    )
+    UNION ALL
+    SELECT DISTINCT
+        COALESCE(
+            (SELECT ORDERNUMBER FROM BL_3NF.CE_ORDERS 
+             WHERE ORDER_SRC_ID = nous.order_id::VARCHAR
+               AND SOURCE_SYSTEM = 'sa_no_usa_orders'
+               AND SOURCE_ENTITY = 'src_no_usa_order'),
+            nextval('BL_3NF.ordernumber_seq')
+        ) AS ordernumber,
+        nous.quantity::INTEGER AS quantityordered,
+        nous.sales_amount::NUMERIC AS sales,
+        pm.PAYMENT_METHOD_ID AS payment_method_id,
+        ds.DEALSIZE_ID AS dealsize_id,
+        p.PRODUCT_ID AS product_id,
+        c.CUSTOMER_ID AS customer_id,
+        nous.date_of_order::DATE AS event_dt,
+        CURRENT_DATE AS ta_insert_dt,
+        CURRENT_TIMESTAMP AS ta_update_dt,
+        nous.order_id::VARCHAR AS order_src_id,
+        'sa_no_usa_orders' AS source_system,
+        'src_no_usa_order' AS source_entity
+    FROM sa_no_usa_orders.src_no_usa_order nous
+    LEFT JOIN BL_3NF.CE_PAYMENT_METHODS pm 
+    ON  pm.payment_src_id = nous.payment_method
+    AND pm.source_system = 'sa_no_usa_orders'
+    AND pm.source_entity = 'src_no_usa_order'
+    LEFT JOIN BL_3NF.CE_DEALSIZES ds 
+    ON  ds.dealsize_src_id = nous.deal_size
+    AND ds.source_system = 'sa_no_usa_orders'
+    AND ds.source_entity = 'src_no_usa_order'
+    LEFT JOIN BL_3NF.CE_PRODUCTS p 
+    ON  p.product_src_id = nous.product_model
+    AND p.source_system = 'sa_no_usa_orders'
+    AND p.source_entity = 'src_no_usa_order'
+    LEFT JOIN BL_3NF.CE_CUSTOMERS_SCD c 
+    ON  c.customer_src_id = nous.customers_id::VARCHAR
+    AND c.source_system = 'sa_no_usa_orders'
+    AND c.source_entity = 'src_no_usa_order'
+    where nous.is_processed = false
+    and NOT EXISTS (
+        SELECT 1 FROM BL_3NF.CE_ORDERS o 
+        WHERE o.ORDER_SRC_ID = nous.order_id::VARCHAR
+          AND o.SOURCE_SYSTEM = 'sa_no_usa_orders'
+          AND o.SOURCE_ENTITY = 'src_no_usa_order'
+    );
+
+   -- setting is_processed  to true where it was false
+   UPDATE sa_us_orders.src_us_order
+    SET is_processed = true
+    WHERE  is_processed = false;
+
+    UPDATE sa_no_usa_orders.src_no_usa_order
+    SET is_processed = true
+    WHERE  is_processed = false;
+
+   -- updating references to customer so it will reference to new updated customer instead of old one. 
+   UPDATE BL_3NF.CE_ORDERS o
+		SET customer_id = cust_new.customer_id
+		FROM BL_3NF.CE_CUSTOMERS_SCD cust_old
+		JOIN BL_3NF.CE_CUSTOMERS_SCD cust_new 
+		    ON cust_old.customer_src_id = cust_new.customer_src_id
+		    AND cust_old.source_system = cust_new.source_system
+		    AND cust_old.source_entity = cust_new.source_entity
+		WHERE o.customer_id = cust_old.customer_id
+		AND cust_new.is_active = true;   
+  
+
+    GET DIAGNOSTICS rows_affected = ROW_COUNT;
+    PERFORM BL_CL.log_procedure_action('load_orders', rows_affected, 'Orders loaded successfully');
+EXCEPTION
+    WHEN unique_violation THEN
+        PERFORM BL_CL.log_procedure_action('load_orders', 0, 'Duplicate order number found and skipped');
+    WHEN OTHERS THEN
+        PERFORM BL_CL.log_procedure_action('load_orders', 0, 'Error occurred during orders load', SQLERRM);
+        RAISE;
 END;
 $$;
 
@@ -1308,41 +1358,58 @@ $$;
 
 
 
+
+
 -- Call the procedure to insert data into CE_DEALSIZES
-CALL BL_3NF.insert_ce_dealsizes_procedure();
+CALL BL_cl.load_dealsizes();
+select * from bl_3nf.ce_dealsizes cd ;
 
 -- Call the procedure to insert data into CE_PAYMENT_METHODS
-CALL BL_3NF.insert_ce_payment_methods_procedure();
+CALL BL_cl.load_payment_methods();
+select * from bl_3nf.ce_payment_methods cpm ;
 
 -- Call the procedure to insert data into CE_PRODUCTS
-CALL BL_3NF.insert_ce_products_procedure();
+CALL BL_cl.load_products();
+select * from bl_3nf.ce_products cp ;
 
 -- Call the procedure to insert data into CE_COUNTRIES
-CALL BL_3NF.insert_ce_countries_procedure();
+CALL BL_cl.load_countries();
+select * from bl_3nf.ce_countries cc;
 
 -- Call the procedure to insert data into CE_STATES
-CALL BL_3NF.insert_ce_states_procedure();
+CALL BL_cl.load_states();
+select * from bl_3nf.ce_states cs ;
 
 -- Call the procedure to insert data into CE_CITIES
-CALL BL_3NF.insert_ce_cities_procedure();
+CALL BL_cl.load_cities();
+select * from bl_3nf.ce_cities cc ;
 
 -- Call the procedure to insert data into CE_ADDRESSES
-CALL BL_3NF.insert_ce_addresses_procedure();
-
+CALL BL_cl.load_addresses();
+select *  from bl_3nf.ce_addresses ca ;
 -- Call the procedure to insert data into CE_CUSTOMERS_SCD
-CALL BL_3NF.load_customers();
-
+CALL BL_cl.load_customers();
+select * from bl_3nf.ce_customers_scd  where customer_src_id ='29';
 
 -- Call the procedure to insert data into CE_ORDERS
 
-CALL BL_3NF.insert_ce_orders_procedure();
+CALL BL_cl.load_orders();
 
 
 
-select * from bl_3nf.ce_customers_scd ccs
-where customer_src_id= '29'; 
 
-select * from sa_us_orders.src_us_order where customer_id= '29'and src_us_order.contactlastname ='old' ; 
+-- Check if the missing addresses are now in the CE_ADDRESSES table
+
+
+
+select * from bl_3nf.ce_orders co  where order_src_id  ='40050060' ;
+
+
+select * from ce_orders co  where customer_id= '29';
+
+
+
+
 -- creating dm
 CREATE OR REPLACE PROCEDURE bl_dm.create_dim_and_fct_tables_procedure()
 LANGUAGE plpgsql
@@ -1352,7 +1419,7 @@ BEGIN
     CREATE TABLE IF NOT EXISTS bl_dm.dim_dealsizes (
         dealsize_surr_id BIGINT PRIMARY KEY,
         dealsize_src_id VARCHAR(100) NOT NULL UNIQUE,
-        dealsize VARCHAR(50) NOT NULL UNIQUE,
+        dealsize VARCHAR(50) NOT NULL,
         ta_insert_dt DATE NOT NULL,
         ta_update_dt DATE NOT NULL,
         source_system VARCHAR(100) NOT NULL,
@@ -1363,7 +1430,7 @@ BEGIN
     CREATE TABLE IF NOT EXISTS bl_dm.dim_payment_methods (
         payment_method_surr_id BIGINT PRIMARY KEY,
         payment_method_src_id VARCHAR(100) NOT NULL UNIQUE,
-        payment_method VARCHAR(50) NOT NULL UNIQUE,
+        payment_method VARCHAR(50) NOT NULL,
         ta_insert_dt DATE NOT NULL,
         ta_update_dt DATE NOT NULL,
         source_system VARCHAR(100) NOT NULL,
@@ -1524,7 +1591,7 @@ CREATE SEQUENCE IF NOT EXISTS BL_DM.dm_order_id_seq;
 
 -- here i check index if they exist and making sure they do exsit
 
-CREATE OR REPLACE PROCEDURE BL_DM.load_dm_dealsizes()
+CREATE OR REPLACE PROCEDURE BL_cl.load_dm_dealsizes()
 LANGUAGE plpgsql
 AS $$
 DECLARE
@@ -1534,20 +1601,27 @@ BEGIN
     INSERT INTO BL_DM.DIM_DEALSIZES (
         DEALSIZE_SURR_ID, DEALSIZE, DEALSIZE_SRC_ID, TA_INSERT_DT, TA_UPDATE_DT, SOURCE_SYSTEM, SOURCE_ENTITY
     )
-    SELECT DISTINCT
-        ds.dealsize_id AS dealsize_surr_id,
+    SELECT distinct
+        nextval('BL_DM.dm_dealsize_id_seq') AS dealsize_surr_id,  -- Auto-increment using sequence
         ds.dealsize,
-        ds.dealsize_src_id,
-        ds.ta_insert_dt,
-        ds.ta_update_dt,
-        ds.source_system,
-        ds.source_entity
+        MIN(ds.dealsize_id::varchar) AS dealsize_src_id, 
+        MIN(ds.ta_insert_dt) AS ta_insert_dt,
+        current_date as source_system,
+       'BL_3NF' as source_entity,
+       'CE_DEALSIZES'
     FROM BL_3NF.CE_DEALSIZES ds
-    WHERE ds.ta_insert_dt >= (SELECT COALESCE(MAX(ta_insert_dt), '1900-01-01'::timestamp) FROM BL_DM.fct_orders)
+    WHERE ds.ta_insert_dt >= (
+        -- Select the most recent ta_insert_dt from fct_orders
+        SELECT COALESCE(MAX(ta_insert_dt), '1900-01-01'::timestamp) 
+        FROM BL_DM.fct_orders
+    )
     AND NOT EXISTS (
-        SELECT 1 FROM BL_DM.DIM_DEALSIZES dds
-        WHERE dds.dealsize_surr_id = ds.dealsize_id
-    );
+        -- Check if this record already exists in DIM_DEALSIZES
+        SELECT 1 
+        FROM BL_DM.DIM_DEALSIZES dds
+        WHERE dds.dealsize = ds.dealsize
+    )
+   GROUP BY ds.dealsize;
 
     -- Get the number of rows affected by the insert operation
     GET DIAGNOSTICS rows_affected = ROW_COUNT;
@@ -1557,9 +1631,12 @@ BEGIN
 END;
 $$;
 
+delete from bl_dm.dim_dealsizes ;
+call BL_cl.load_dm_dealsizes();
+select * from bl_dm.dim_dealsizes ;
 
 -- payment methods ---------------------------------------------------------------------------------------------------------------------
-CREATE OR REPLACE PROCEDURE BL_DM.load_dm_payment_methods()
+CREATE OR REPLACE PROCEDURE BL_cl.load_dm_payment_methods()
 LANGUAGE plpgsql
 AS $$
 DECLARE
@@ -1570,20 +1647,28 @@ BEGIN
         PAYMENT_METHOD_SURR_ID, PAYMENT_METHOD, PAYMENT_METHOD_SRC_ID, TA_INSERT_DT, TA_UPDATE_DT, SOURCE_SYSTEM, SOURCE_ENTITY
     )
     SELECT DISTINCT
-        pm.payment_method_id AS payment_method_surr_id,
-        pm.payment_method,
-        pm.payment_src_id, 
-        pm.ta_insert_dt,
-        pm.ta_update_dt,
-        pm.source_system,
-        pm.source_entity
+        nextval('BL_DM.dm_payment_method_id_seq') AS payment_method_surr_id,  -- Auto-increment using sequence
+        pm.payment_method as payment_method,
+        min(pm.payment_method_id::varchar) AS payment_method_src_id,  -- Convert payment_method_id from 3NF to varchar
+        min(pm.ta_insert_dt) as ta_insert_dt ,
+        current_date,
+       'BL_3NF' as source_system,
+       'CE_PAYMENT_METHODS' as source_entity
     FROM BL_3NF.CE_PAYMENT_METHODS pm
-    WHERE pm.ta_insert_dt >= (SELECT COALESCE(MAX(ta_insert_dt), '1900-01-01'::timestamp) FROM BL_DM.DIM_PAYMENT_METHODS)
+    WHERE pm.ta_insert_dt >= (
+        -- Select the most recent ta_insert_dt from DIM_PAYMENT_METHODS
+        SELECT COALESCE(MAX(ta_insert_dt), '1900-01-01'::timestamp) 
+        FROM BL_DM.DIM_PAYMENT_METHODS
+    )
     AND NOT EXISTS (
-        SELECT 1 FROM BL_DM.DIM_PAYMENT_METHODS dpm
-        WHERE dpm.payment_method_surr_id = pm.payment_method_id
-    );
+        -- Check if this record already exists in DIM_PAYMENT_METHODS
+        SELECT 1 
+        FROM BL_DM.DIM_PAYMENT_METHODS dpm
+        WHERE dpm.payment_method= pm.payment_method::varchar
+    )
+   group by pm.payment_method;
 
+    -- Get the number of rows affected by the insert operation
     GET DIAGNOSTICS rows_affected = ROW_COUNT;
 
     -- Log the action
@@ -1592,6 +1677,8 @@ END;
 $$;
 
 
+call BL_cl.load_dm_payment_methods();
+select* from BL_DM.DIM_PAYMENT_METHODS;
    
 
 -- Procedure to load data into DIM_DATES----------------------------------------------------------------------------------------
@@ -1628,11 +1715,12 @@ BEGIN
 END;
 $$;
 
+call BL_DM.load_dm_dates();
 
-
+select * from bl_dm.dim_dates dd 
 
 -- Procedure to load data into DIM_PRODUCTS-------------------------------------------------------------------------------------------
-CREATE OR REPLACE PROCEDURE BL_DM.load_dm_products()
+CREATE OR REPLACE PROCEDURE BL_CL.load_dm_products()
 LANGUAGE plpgsql
 AS $$
 DECLARE
@@ -1643,25 +1731,28 @@ BEGIN
         product_surr_id, product_src_id, productcode, productline, priceeach, msrp, ta_insert_dt, ta_update_dt, source_system, source_entity
     )
     SELECT DISTINCT
-        p.product_id AS product_surr_id,
-        p.product_src_id,
+        nextval('BL_DM.dm_product_id_seq') AS product_surr_id,  -- Auto-increment using sequence
+        p.product_id::varchar AS product_src_id,  -- Use product_id from 3NF as the source ID and convert to varchar
         p.productcode,
         p.productline,
         p.priceeach,
         p.msrp,
         p.ta_insert_dt,
         CURRENT_TIMESTAMP AS ta_update_dt,
-        p.source_system,
-        p.source_entity
+        'BL_3NF' as source_system,
+        'CE_PRODUCTS' as source_entity
     FROM BL_3NF.CE_PRODUCTS p
     WHERE p.ta_insert_dt >= (
+        -- Select the most recent ta_insert_dt from DIM_PRODUCTS
         SELECT COALESCE(MAX(ta_insert_dt), '1900-01-01'::timestamp) 
         FROM BL_DM.DIM_PRODUCTS
     )
     AND NOT EXISTS (
+        -- Check if this record already exists in DIM_PRODUCTS
         SELECT 1 FROM BL_DM.DIM_PRODUCTS d
-        WHERE d.product_surr_id = p.product_id
-          AND d.product_src_id = p.product_src_id
+        WHERE d.product_src_id = p.product_id::varchar  -- Match by source ID
+        AND d.source_system = 'BL_3NF'
+        AND d.source_entity = 'CE_PRODUCTS' 
     );
 
     -- Get the number of rows affected by the insert operation
@@ -1672,11 +1763,11 @@ BEGIN
 END;
 $$;
 
-
-
+call BL_CL.load_dm_products();
+select * from BL_DM.DIM_PRODUCTS ;
 
 -- customers -------------------------------------------------------------------------------------------------------------------------
-CREATE OR REPLACE PROCEDURE bl_dm.load_dm_customers()
+CREATE OR REPLACE PROCEDURE BL_CL.load_dm_customers()
 LANGUAGE plpgsql
 AS $$
 DECLARE
@@ -1688,44 +1779,57 @@ BEGIN
 
     FOR rec IN
         SELECT DISTINCT
-            c.customer_src_id,
+            c.customer_id,
             c.customername,
             c.contactfirstname,
             c.contactlastname,
             c.phone,
-            a.addressline1,
+            COALESCE(a.addressline1, 'Unknown Address') AS addressline1,  -- Use a default value if addressline1 is NULL
             COALESCE(ct.city_id, -1) AS city_id,
             COALESCE(ct.city_name, 'n. a.') AS city,
             COALESCE(st.state_id, -1) AS state_id,
             COALESCE(st.state_name, 'n. a.') AS state,
             COALESCE(co.country_id, -1) AS country_id,
             COALESCE(co.country_name, 'n. a.') AS country,
-            c.source_system,
-            c.source_entity
+            'BL_3NF' as source_system,
+            'CE_CUSTOMERS_SCD' as source_entity
         FROM BL_3NF.CE_CUSTOMERS_SCD c
-        LEFT JOIN BL_3NF.CE_ADDRESSES a ON c.address_id = a.address_id
-        LEFT JOIN BL_3NF.CE_CITIES ct ON a.city_id = ct.city_id
-        LEFT JOIN BL_3NF.CE_STATES st ON ct.state_id = st.state_id
-        LEFT JOIN BL_3NF.CE_COUNTRIES co ON st.country_id = co.country_id
-        WHERE c.customer_src_id <> '-1'
+        LEFT JOIN BL_3NF.CE_ADDRESSES a 
+            ON c.address_id = a.address_id 
+            AND c.source_system = a.source_system 
+            AND c.source_entity = a.source_entity
+        LEFT JOIN BL_3NF.CE_CITIES ct 
+            ON a.city_id = ct.city_id
+            AND a.source_system = ct.source_system 
+            AND a.source_entity = ct.source_entity
+        LEFT JOIN BL_3NF.CE_STATES st 
+            ON ct.state_id = st.state_id
+            AND ct.source_system = st.source_system 
+            AND ct.source_entity = st.source_entity
+        LEFT JOIN BL_3NF.CE_COUNTRIES co 
+            ON st.country_id = co.country_id
+            AND st.source_system = co.source_system 
+            AND st.source_entity = co.source_entity
+            where c.is_active = 'Y'
+            
     LOOP
-        -- Check if the customer exists
+        -- Check if the customer already exists in the DM layer
         SELECT * INTO v_existing_customer
         FROM bl_dm.dim_customers_scd
-        WHERE customer_src_id = rec.customer_src_id
-          AND source_system = rec.source_system
-          AND source_entity = rec.source_entity;
+        WHERE customer_src_id = rec.customer_id::varchar(100)
+          AND source_system =  'BL_3NF'
+          AND source_entity =  'CE_CUSTOMERS_SCD';
 
         IF FOUND THEN
-            -- Update the existing record to mark it as inactive and set end date
+            -- Update the existing record to mark it as inactive and set the end date
             UPDATE bl_dm.dim_customers_scd
             SET 
                 end_dt = CURRENT_DATE,
                 is_active = 'N',
                 ta_update_dt = CURRENT_TIMESTAMP
-            WHERE customer_src_id = rec.customer_src_id
-              AND source_system = rec.source_system
-              AND source_entity = rec.source_entity
+            WHERE customer_src_id = rec.customer_id::varchar(100)
+              AND source_system = 'BL_3NF'
+              AND source_entity =  'CE_CUSTOMERS_SCD'
               AND is_active = 'Y'; -- Only update active records
         END IF;
 
@@ -1737,16 +1841,20 @@ BEGIN
             source_system, source_entity
         )
         VALUES (
-            nextval('bl_dm.customer_surr_id_seq'), rec.customer_src_id, rec.customername, 
+            nextval('bl_dm.customer_surr_id_seq'), rec.customer_id::varchar(100), rec.customername, 
             rec.contactfirstname, rec.contactlastname, rec.phone, rec.addressline1, 
             rec.city_id, rec.city, rec.state_id, rec.state, rec.country_id, rec.country, 
             CURRENT_DATE, '9999-12-31'::DATE, 'Y', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 
-            rec.source_system, rec.source_entity
+            'BL_3NF', 'CE_CUSTOMERS_SCD'
         );
     END LOOP;
 END;
 $$;
 
+
+
+call bl_CL.load_dm_customers();
+select * from bl_dm.dim_customers_scd;
 
 -------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------
@@ -1765,12 +1873,7 @@ CREATE TABLE IF NOT EXISTS BL_DM.fct_orders (
     event_dt DATE,
     source_system TEXT,
     source_entity TEXT,
-    CONSTRAINT pk_fct_orders PRIMARY KEY (ordernumber, event_dt),
-    CONSTRAINT fk_payment_method FOREIGN KEY (payment_method_surr_id) REFERENCES BL_DM.dim_payment_methods(payment_method_surr_id),
-    CONSTRAINT fk_dealsize FOREIGN KEY (dealsize_surr_id) REFERENCES BL_DM.dim_dealsizes(dealsize_surr_id),
-    CONSTRAINT fk_product FOREIGN KEY (product_surr_id) REFERENCES BL_DM.dim_products(product_surr_id),
-    CONSTRAINT fk_customer FOREIGN KEY (customer_surr_id) REFERENCES BL_DM.dim_customers(customer_surr_id),
-    CONSTRAINT fk_date FOREIGN KEY (date_id) REFERENCES BL_DM.dim_dates(date_id)
+    unique (ordernumber, event_dt)
 ) PARTITION BY RANGE (event_dt);
 
 -- Drop any existing partitions that might be conflicting
@@ -1882,14 +1985,23 @@ call BL_DM.manage_fct_orders_partitions()
 
 
 
+CREATE INDEX idx_orders_ta_insert_dt ON BL_3NF.CE_ORDERS(ta_insert_dt);
+CREATE INDEX idx_orders_event_dt ON BL_3NF.CE_ORDERS(event_dt);
+CREATE INDEX idx_dim_payment_methods ON BL_DM.dim_payment_methods(payment_method_src_id, source_system, source_entity);
+CREATE INDEX idx_dim_dealsizes ON BL_DM.dim_dealsizes(dealsize_src_id, source_system, source_entity);
+CREATE INDEX idx_dim_products ON BL_DM.dim_products(product_src_id, source_system, source_entity);
+CREATE INDEX idx_dim_customers ON BL_DM.dim_customers(customer_src_id, source_system, source_entity);
 
 
 -- order
 
-CREATE OR REPLACE PROCEDURE BL_DM.load_dm_orders()
+CREATE OR REPLACE PROCEDURE BL_CL.load_dm_orders()
 LANGUAGE plpgsql
 AS $$
+DECLARE
+    rows_affected INT := 0;
 BEGIN
+    -- Insert or update records in the fct_orders table
     INSERT INTO BL_DM.fct_orders (
         ordernumber, 
         payment_method_surr_id, 
@@ -1906,12 +2018,12 @@ BEGIN
         source_system, 
         source_entity
     )
-    SELECT DISTINCT
-       o.ordernumber::BIGINT AS ordernumber,
-        o.payment_method_id AS payment_method_surr_id,
-        o.dealsize_id AS dealsize_surr_id,
-        o.product_id AS product_surr_id,
-        o.customer_id AS customer_surr_id,
+    SELECT 
+        o.ordernumber::BIGINT AS ordernumber,
+        pm_surr.payment_method_surr_id,
+        ds_surr.dealsize_surr_id,
+        p_surr.product_surr_id,
+        c_surr.customer_surr_id,
         COALESCE(TO_CHAR(o.event_dt, 'DDMMYYYY')::INT8, -1) AS date_id,
         o.sales,
         o.quantityordered,
@@ -1919,31 +2031,35 @@ BEGIN
         o.ta_insert_dt,
         CURRENT_TIMESTAMP AS ta_update_dt,
         o.event_dt,
-        o.source_system,
-        o.source_entity
+        'BL_3NF' as source_system,
+        'CE_ORDERS' as source_entity
     FROM BL_3NF.CE_ORDERS o
-    WHERE o.ta_insert_dt >= (SELECT COALESCE(MAX(ta_insert_dt), '1900-01-01'::timestamp) FROM BL_DM.fct_orders)
-    AND EXISTS (SELECT 1 FROM BL_DM.dim_dates d WHERE d.date_id = COALESCE(TO_CHAR(o.event_dt, 'DDMMYYYY')::INT8, -1))
-    AND EXISTS (SELECT 1 FROM BL_DM.dim_customers c WHERE c.customer_surr_id = o.customer_id)
-    AND EXISTS (SELECT 1 FROM BL_DM.dim_payment_methods pm WHERE pm.payment_method_surr_id = o.payment_method_id)
-    AND EXISTS (SELECT 1 FROM BL_DM.dim_dealsizes ds WHERE ds.dealsize_surr_id = o.dealsize_id)
-    AND EXISTS (SELECT 1 FROM BL_DM.dim_products p WHERE p.product_surr_id = o.product_id)
-    ON CONFLICT (ordernumber, event_dt)
-    DO UPDATE SET
-        payment_method_surr_id = EXCLUDED.payment_method_surr_id,
-        dealsize_surr_id = EXCLUDED.dealsize_surr_id,
-        product_surr_id = EXCLUDED.product_surr_id,
-        customer_surr_id = EXCLUDED.customer_surr_id,
-        date_id = EXCLUDED.date_id,
-        sales = EXCLUDED.sales,
-        quantityordered = EXCLUDED.quantityordered,
-        total_cost = EXCLUDED.total_cost,
-        ta_update_dt = CURRENT_TIMESTAMP,
-        source_system = EXCLUDED.source_system,
-        source_entity = EXCLUDED.source_entity;
-    
+    INNER JOIN BL_DM.dim_payment_methods pm_surr 
+        ON pm_surr.payment_method_src_id = o.payment_method_id::VARCHAR
+        AND pm_surr.source_system =  'BL_3NF'
+        AND pm_surr.source_entity = 'CE_PAYMENT_METHODS'
+    INNER JOIN BL_DM.dim_dealsizes ds_surr 
+        ON ds_surr.dealsize_src_id = o.dealsize_id::VARCHAR
+        AND ds_surr.source_system =  'BL_3NF'
+        AND ds_surr.source_entity = 'CE_DEALSIZES'
+    INNER JOIN BL_DM.dim_products p_surr 
+        ON p_surr.product_src_id = o.product_id::VARCHAR
+        AND p_surr.source_system =  'BL_3NF'
+        AND p_surr.source_entity = 'CE_PRODUCTS'
+    INNER JOIN BL_DM.dim_customers_scd  c_surr 
+        ON c_surr.customer_src_id = o.customer_id::VARCHAR
+        AND c_surr.source_system =  'BL_3NF'
+        AND c_surr.source_entity = 'CE_CUSTOMERS_SCD'
+    WHERE o.ta_insert_dt >= (
+        SELECT COALESCE(MAX(ta_insert_dt), '1900-01-01'::timestamp) 
+        FROM BL_DM.fct_orders
+    );
+
+   
+
     -- Log the action
-    PERFORM BL_3NF.log_procedure_action('load_dm_orders', 0, 'Orders loaded/updated successfully into DM');
+    GET DIAGNOSTICS rows_affected = ROW_COUNT;
+    PERFORM BL_3NF.log_procedure_action('load_dm_orders', rows_affected, 'Orders loaded/updated successfully into DM');
 EXCEPTION
     WHEN OTHERS THEN
         PERFORM BL_3NF.log_procedure_action('load_dm_orders', 0, 'Error during order load: ' || SQLERRM);
@@ -1953,27 +2069,8 @@ $$;
 
 
 
-
-
--- Execute the procedures
-CALL BL_DM.load_dm_dealsizes();
-CALL BL_DM.load_dm_payment_methods();
-CALL BL_DM.load_dm_customers();
-CALL BL_DM.load_dm_products();
-CALL BL_DM.load_dm_dates();
-CALL BL_DM.load_dm_orders();
-
-
--- Verify data in DM tables
-SELECT * FROM BL_DM.DIM_DEALSIZES ;
-SELECT * FROM BL_DM.DIM_PAYMENT_METHODS;
-select * from bl_dm.dim_customers dcs ;
-SELECT * FROM BL_DM.DIM_PRODUCTS LIMIT 10;
-SELECT * FROM BL_DM.DIM_DATES LIMIT 10;
-
--- Verify data in the fact table
-SELECT * FROM BL_DM.FCT_ORDERS LIMIT 10;
-
+call BL_CL.load_dm_orders();
+select * from BL_DM.fct_orders;
 
 
 

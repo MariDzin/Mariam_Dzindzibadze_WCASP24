@@ -31,10 +31,10 @@ def pytest_sessionfinish(session, exitstatus):
     # Check if the Allure command is available
     allure_command = shutil.which("allure")
     if allure_command is None:
-        print("\nAllure command not found. Please ensure that Allure is installed and added to your PATH.")
+        print("\nAllure command not found")
         return
 
-    # Determine the allure results directory from the command line args
+    # Determine the allure results dir from the command line args
     alluredir = None
     for i, arg in enumerate(sys.argv):
         if arg.startswith('--alluredir'):
@@ -45,7 +45,7 @@ def pytest_sessionfinish(session, exitstatus):
                     alluredir = sys.argv[i + 1]
             break
     if alluredir is None:
-        alluredir = './reports'  # Default directory
+        alluredir = './reports'
 
     # Set the output directory
     if '-m' in sys.argv:

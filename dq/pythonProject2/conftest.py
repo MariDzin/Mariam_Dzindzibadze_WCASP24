@@ -1,8 +1,9 @@
 import pytest
 import subprocess
 import shutil
-import psycopg2  # Use psycopg2 for PostgreSQL
+import psycopg2
 import sys
+
 
 @pytest.fixture(scope='session')
 def db_connection():
@@ -16,12 +17,14 @@ def db_connection():
     yield conn
     conn.close()
 
+
 @pytest.fixture(scope='session')
 def db_cursor(db_connection):
     """Fixture to create a database cursor."""
     cursor = db_connection.cursor()
     yield cursor
     cursor.close()
+
 
 def pytest_sessionfinish(session, exitstatus):
     """Generate Allure report after test session is finished."""
@@ -44,7 +47,7 @@ def pytest_sessionfinish(session, exitstatus):
     if alluredir is None:
         alluredir = './reports'  # Default directory
 
-    # Set the output directory based on the test markers
+    # Set the output directory
     if '-m' in sys.argv:
         marker_index = sys.argv.index('-m') + 1
         marker = sys.argv[marker_index]

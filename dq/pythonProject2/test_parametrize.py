@@ -14,6 +14,7 @@ def add_numbers(a, b, c):
     except TypeError:
         raise TypeError('Please check the parameters. All of them must be numeric')
 
+
 @pytest.mark.smoke
 @pytest.mark.parametrize(
     "case",

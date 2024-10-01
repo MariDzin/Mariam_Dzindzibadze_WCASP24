@@ -1,0 +1,13 @@
+"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
+"
+    Verify that the GCP bucket for the specified date is not empty.
+    ","0","test_data_is_present_in_gcp_bucket","","Tue Oct 01 01:34:14 GET 2024","passed","Tue Oct 01 01:34:14 GET 2024","","api_task","",""
+"
+    Verify that the AWS bucket for the specified date is not empty.
+    ","0","test_data_is_present_in_aws_bucket","","Tue Oct 01 01:34:17 GET 2024","passed","Tue Oct 01 01:34:17 GET 2024","","api_task","",""
+"
+    Verify that both GCP and AWS buckets for the specified date are not empty.
+    ","477","test_data_is_presented_between_staging_raw","","Tue Oct 01 00:31:44 GET 2024","failed","Tue Oct 01 00:31:45 GET 2024","","api_task","",""
+"
+    Verify that 10 posts were created for user with userId=3.
+    ","0","test_user_with_posts","","Tue Oct 01 01:34:13 GET 2024","passed","Tue Oct 01 01:34:13 GET 2024","","api_task","",""

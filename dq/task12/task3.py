@@ -34,7 +34,7 @@ try:
     logging.info(f"Located 'Email' field by name: {email_field_by_name}")
 
     # Example for CSS Selector
-    first_name_by_css =(
+    first_name_by_css = (
         wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "input.first_name"))))
     logging.info(f"Located 'First Name' by CSS selector: {first_name_by_css}")
 

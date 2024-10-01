@@ -8,7 +8,7 @@ from google.cloud import storage
 @pytest.fixture(scope='function')
 def provide_config():
     config = {
-        'prefix': '2022/01/01/KTLX/',  # Updated date
+        'prefix': '2022/01/01/KTLX/',
         'gcp_bucket_name': "gcp-public-data-nexrad-l2",
         'aws_bucket_name': 'noaa-nexrad-level2',
         's3_anon_client': boto3.client('s3', config=Config(signature_version=UNSIGNED)),
@@ -47,7 +47,8 @@ def provide_posts_data():
             "id": 21,
             "title": "asperiores ea ipsam voluptatibus modi minima quia sint",
             "body": "repellat aliquid praesentium dolorem quo"
-                    "\nsed totam minus non itaque\nnihil labore molestiae sunt dolor eveniet hic recusandae veniam"
+                    "\nsed totam minus non itaque\nnihil labore molestiae sunt dolor eveniet "
+                    "hic recusandae veniam"
                     "\ntempora et tenetur expedita sunt"
         },
         {
@@ -55,7 +56,8 @@ def provide_posts_data():
             "id": 22,
             "title": "dolor sint quo a velit explicabo quia nam",
             "body": "eos qui et ipsum ipsam suscipit aut"
-                    "\nsed omnis non odio\nexpedita earum mollitia molestiae aut atque rem suscipit"
+                    "\nsed omnis non odio\nexpedita earum mollitia molestiae "
+                    "aut atque rem suscipit"
                     "\nnam impedit esse"
         },
         {
@@ -100,7 +102,8 @@ def provide_posts_data():
             "body": "eum sed dolores ipsam sint possimus debitis occaecati"
                     "\ndebitis qui qui et"
                     "\nut placeat enim earum aut odit facilis"
-                    "\nconsequatur suscipit necessitatibus rerum sed inventore temporibus consequatur"
+                    "\nconsequatur suscipit necessitatibus rerum sed inventore "
+                    "temporibus consequatur"
         },
         {
             "userId": 3,

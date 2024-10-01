@@ -4,6 +4,7 @@ from selenium.webdriver.chrome.service import Service as ChromeService
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException, NoSuchElementException  # Correct import
 import time
 
 # Initialize the WebDriver and set implicit wait
@@ -14,30 +15,35 @@ try:
     #  Open google
     driver.get("https://www.google.com")
 
-    # Accept cookies
+    #  cookie consent
     try:
-        # Explicit wait to ensure the cookie consent button is present
+
         consent_button = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.XPATH, "//div[text()='I agree']/ancestor::button"))
         )
         consent_button.click()
-    except:
-        pass
+    except TimeoutException:
+        print("Cookie consent button not found within the timeout period.")
+    except NoSuchElementException:
+        print("Cookie consent button element could not be found on the page.")
 
-        #  Find the search box and type
+    #   type 'Selenium'
     search_box = driver.find_element(By.NAME, "q")
     search_box.send_keys("Selenium")
     search_box.submit()
 
-    #  Wait  to load
-    first_result = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.XPATH, "//h3"))
-    )
+    #  Wait  results and chose 1st one
+    try:
+        first_result = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.XPATH, "//h3"))
+        )
+        first_result.click()
+    except TimeoutException:
+        print("Search results took too long to load.")
+    except NoSuchElementException:
+        print("First search result not found on the page.")
 
-    #  Click the first link
-    first_result.click()
-
-    time.sleep(5)
+    time.sleep(5)  # Wait for the page to load
 
 finally:
     driver.quit()

@@ -1,0 +1,3 @@
+global:
+    report_uri: https://www.microsoft.com/en-us/Investor/earnings/FY-2023-Q3/income-statements
+    delay: 20

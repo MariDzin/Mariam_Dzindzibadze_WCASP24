@@ -1,0 +1,10 @@
+cases:
+  - case_name: positive
+    input: [2, 10, 99]
+    expected: 111
+  - case_name: negative
+    input: [-1, -19, -100]
+    expected: -120
+  - case_name: mixed
+    input: [99, -99, 0]
+    expected: 0

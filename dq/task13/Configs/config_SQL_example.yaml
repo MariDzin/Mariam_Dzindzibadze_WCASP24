@@ -1,0 +1,15 @@
+sql_queries:
+  smoke_tests:
+    - query: "SELECT * from dm_main_dashboard limit 1;"
+      description: "Check if 'dm_main_dashboard' contains entries."
+    - query: "SELECT * from dwh_channels limit 1;"
+      description: "Check if 'dwh_channels' contains entries."
+    - query: "SELECT * from dwh_products limit 1;"
+      description: "Check if 'dwh_products' contains entries."
+  critical_tests:
+    - query: "SELECT COUNT(*) FROM dm_main_dashboard;"
+      description: "Count records in 'dm_main_dashboard'."
+    - query: "SELECT COUNT(*) FROM dwh_channels WHERE location_id IS NOT NULL;"
+      description: "Check for non-null location_id in 'dwh_channels'."
+    - query: "SELECT COUNT(*) FROM dwh_products WHERE product_cost > 0;"
+      description: "Check for products with valid product_cost in 'dwh_products'."
